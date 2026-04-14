@@ -24,8 +24,28 @@ let PropertiesController = class PropertiesController {
         const numericCategoryId = categoryId ? parseInt(categoryId, 10) : undefined;
         return this.propertiesService.findAll(numericCategoryId);
     }
+    search(location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children, infants, pets) {
+        return this.propertiesService.search({
+            location,
+            startDate,
+            endDate,
+            monthsCount: monthsCount ? parseInt(monthsCount, 10) : undefined,
+            flexibleType,
+            flexibleMonths: flexibleMonths ? flexibleMonths.split(',') : undefined,
+            adults: adults ? parseInt(adults, 10) : undefined,
+            children: children ? parseInt(children, 10) : undefined,
+            infants: infants ? parseInt(infants, 10) : undefined,
+            pets: pets === 'true',
+        });
+    }
     findOne(id) {
         return this.propertiesService.findOne(id);
+    }
+    findAmenities(id) {
+        return this.propertiesService.findAmenities(id);
+    }
+    findReviews(id) {
+        return this.propertiesService.findReviews(id);
     }
 };
 exports.PropertiesController = PropertiesController;
@@ -37,12 +57,42 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PropertiesController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('location')),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, common_1.Query)('monthsCount')),
+    __param(4, (0, common_1.Query)('flexibleType')),
+    __param(5, (0, common_1.Query)('flexibleMonths')),
+    __param(6, (0, common_1.Query)('adults')),
+    __param(7, (0, common_1.Query)('children')),
+    __param(8, (0, common_1.Query)('infants')),
+    __param(9, (0, common_1.Query)('pets')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], PropertiesController.prototype, "search", null);
+__decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", Promise)
 ], PropertiesController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Get)(':id/amenities'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PropertiesController.prototype, "findAmenities", null);
+__decorate([
+    (0, common_1.Get)(':id/reviews'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], PropertiesController.prototype, "findReviews", null);
 exports.PropertiesController = PropertiesController = __decorate([
     (0, common_1.Controller)('properties'),
     __metadata("design:paramtypes", [properties_service_1.PropertiesService])

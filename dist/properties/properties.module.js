@@ -12,12 +12,17 @@ const typeorm_1 = require("@nestjs/typeorm");
 const properties_controller_1 = require("./properties.controller");
 const properties_service_1 = require("./properties.service");
 const property_entity_1 = require("../entities/property.entity");
+const property_image_entity_1 = require("../entities/property-image.entity");
+const amenity_entity_1 = require("../entities/amenity.entity");
+const review_entity_1 = require("../entities/review.entity");
+const property_rule_entity_1 = require("../entities/property-rule.entity");
+const rule_category_entity_1 = require("../entities/rule-category.entity");
 let PropertiesModule = class PropertiesModule {
 };
 exports.PropertiesModule = PropertiesModule;
 exports.PropertiesModule = PropertiesModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([property_entity_1.Property])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([property_entity_1.Property, property_image_entity_1.PropertyImage, amenity_entity_1.Amenity, review_entity_1.Review, property_rule_entity_1.PropertyRule, rule_category_entity_1.RuleCategory])],
         controllers: [properties_controller_1.PropertiesController],
         providers: [properties_service_1.PropertiesService],
         exports: [properties_service_1.PropertiesService],

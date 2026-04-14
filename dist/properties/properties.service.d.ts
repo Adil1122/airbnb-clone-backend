@@ -1,9 +1,40 @@
 import { Repository } from 'typeorm';
 import { Property } from '../entities/property.entity';
+import { Amenity } from '../entities/amenity.entity';
+import { Review } from '../entities/review.entity';
+import { PropertyRule } from '../entities/property-rule.entity';
+import { RuleCategory } from '../entities/rule-category.entity';
 export declare class PropertiesService {
     private propertyRepository;
-    constructor(propertyRepository: Repository<Property>);
+    private amenityRepository;
+    private reviewRepository;
+    private rulesRepository;
+    private ruleCategoriesRepository;
+    constructor(propertyRepository: Repository<Property>, amenityRepository: Repository<Amenity>, reviewRepository: Repository<Review>, rulesRepository: Repository<PropertyRule>, ruleCategoriesRepository: Repository<RuleCategory>);
     findAll(categoryId?: number): Promise<Property[]>;
     findOne(id: number): Promise<Property | null>;
+    findAmenities(propertyId: number): Promise<Amenity[]>;
+    findReviews(propertyId: number): Promise<Review[]>;
+    findRules(propertyId: number): Promise<PropertyRule[]>;
+    findRuleCategories(): Promise<RuleCategory[]>;
+    search(params: {
+        location?: string;
+        startDate?: string;
+        endDate?: string;
+        monthsCount?: number;
+        flexibleType?: string;
+        flexibleMonths?: string[];
+        adults?: number;
+        children?: number;
+        infants?: number;
+        pets?: boolean;
+    }): Promise<Property[]>;
     create(property: Partial<Property>): Promise<Property>;
+    createAmenity(amenity: Partial<Amenity>): Promise<Amenity>;
+    createReview(review: Partial<Review>): Promise<Review>;
+    createRule(rule: Partial<PropertyRule>): Promise<PropertyRule>;
+    createRuleCategory(category: Partial<RuleCategory>): Promise<RuleCategory>;
+    bulkCreateRules(rules: Partial<PropertyRule>[]): Promise<PropertyRule[]>;
+    deleteRulesByPropertyId(propertyId: number): Promise<void>;
+    deleteAllRules(): Promise<void>;
 }

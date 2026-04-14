@@ -14,7 +14,15 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const categories_module_1 = require("./categories/categories.module");
 const properties_module_1 = require("./properties/properties.module");
+const experiences_module_1 = require("./experiences/experiences.module");
+const services_module_1 = require("./services/services.module");
+const destinations_module_1 = require("./destinations/destinations.module");
+const filters_module_1 = require("./filters/filters.module");
 const seed_service_1 = require("./seed.service");
+const auth_module_1 = require("./auth/auth.module");
+const payment_module_1 = require("./payment/payment.module");
+const user_entity_1 = require("./entities/user.entity");
+const booking_entity_1 = require("./entities/booking.entity");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,8 +40,15 @@ exports.AppModule = AppModule = __decorate([
                 autoLoadEntities: true,
                 synchronize: true,
             }),
+            typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, booking_entity_1.Booking]),
             categories_module_1.CategoriesModule,
             properties_module_1.PropertiesModule,
+            experiences_module_1.ExperiencesModule,
+            services_module_1.ServicesModule,
+            destinations_module_1.DestinationsModule,
+            filters_module_1.FiltersModule,
+            auth_module_1.AuthModule,
+            payment_module_1.PaymentModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService, seed_service_1.SeedService],

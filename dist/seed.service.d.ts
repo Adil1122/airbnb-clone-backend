@@ -1,10 +1,34 @@
 import { OnModuleInit } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { CategoriesService } from './categories/categories.service';
 import { PropertiesService } from './properties/properties.service';
+import { ExperiencesService } from './experiences/experiences.service';
+import { ServicesService } from './services/services.service';
+import { DestinationsService } from './destinations/destinations.service';
+import { FiltersService } from './filters/filters.service';
+import { Category } from './entities/category.entity';
+import { User } from './entities/user.entity';
 export declare class SeedService implements OnModuleInit {
     private readonly categoriesService;
     private readonly propertiesService;
-    constructor(categoriesService: CategoriesService, propertiesService: PropertiesService);
+    private readonly experiencesService;
+    private readonly servicesService;
+    private readonly destinationsService;
+    private readonly filtersService;
+    private readonly userRepository;
+    constructor(categoriesService: CategoriesService, propertiesService: PropertiesService, experiencesService: ExperiencesService, servicesService: ServicesService, destinationsService: DestinationsService, filtersService: FiltersService, userRepository: Repository<User>);
     onModuleInit(): Promise<void>;
-    seed(): Promise<void>;
+    private seedUsers;
+    checkAndSeed(): Promise<void>;
+    seedAmenitiesForProperty(propertyId: number): Promise<void>;
+    seedGuestCategories(): Promise<void>;
+    seedSearchDurations(): Promise<void>;
+    seedDestinations(): Promise<void>;
+    seedCategories(): Promise<void>;
+    seedProperties(categories: Category[]): Promise<void>;
+    seedExperiences(): Promise<void>;
+    seedServices(): Promise<void>;
+    seedReviewsForProperty(propertyId: number, users: User[]): Promise<void>;
+    seedRuleCategories(): Promise<void>;
+    seedRulesForProperty(propertyId: number, maxGuests: number): Promise<void>;
 }
