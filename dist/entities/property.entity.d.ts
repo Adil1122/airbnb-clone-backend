@@ -2,6 +2,7 @@ import { Category } from './category.entity';
 import { PropertyImage } from './property-image.entity';
 import { Review } from './review.entity';
 import { PropertyRule } from './property-rule.entity';
+import { Amenity } from './amenity.entity';
 export declare class Property {
     id: number;
     title: string;
@@ -37,4 +38,5 @@ export declare class Property {
     images: PropertyImage[];
     reviews: Review[];
     rules: PropertyRule[];
+    amenities: Amenity[];
 }

@@ -3,6 +3,7 @@ import { Category } from './category.entity';
 import { PropertyImage } from './property-image.entity';
 import { Review } from './review.entity';
 import { PropertyRule } from './property-rule.entity';
+import { Amenity } from './amenity.entity';
 
 @Entity('properties')
 export class Property {
@@ -107,4 +108,7 @@ export class Property {
 
     @OneToMany(() => PropertyRule, (rule) => rule.property)
     rules: PropertyRule[];
+
+    @OneToMany(() => Amenity, (amenity) => amenity.property)
+    amenities: Amenity[];
 }

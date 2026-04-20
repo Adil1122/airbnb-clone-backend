@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param, ParseIntPipe } from '@nestjs/common';
 import { ExperiencesService } from './experiences.service';
 import { Experience } from '../entities/experience.entity';
 
@@ -32,5 +32,10 @@ export class ExperiencesController {
             adults: adults ? parseInt(adults, 10) : undefined,
             children: children ? parseInt(children, 10) : undefined,
         });
+    }
+
+    @Get(':id')
+    findOne(@Param('id', ParseIntPipe) id: number): Promise<Experience | null> {
+        return this.experiencesService.findOne(id);
     }
 }

@@ -28,15 +28,25 @@ let ServicesService = class ServicesService {
     async search(params) {
         const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children } = params;
         const query = this.servicesRepository.createQueryBuilder('service');
-        if (location) {
-            query.andWhere('service.location LIKE :location', { location: `%${location}%` });
+        if (location && location.trim() !== '' && !location.includes('Search destinations')) {
+            const keyword = location.split(/[, ]+/)[0];
+            query.andWhere('service.location LIKE :keyword', { keyword: `%${keyword}%` });
         }
-        if (startDate) {
-            const sDate = new Date(startDate);
-            query.andWhere('service.availableFrom <= :sDate', { sDate });
-            if (endDate) {
-                const eDate = new Date(endDate);
-                query.andWhere('service.availableTo >= :eDate', { eDate });
+        if (startDate && startDate !== 'Add dates') {
+            try {
+                const sDate = new Date(startDate);
+                if (!isNaN(sDate.getTime())) {
+                    query.andWhere('(service.availableFrom IS NULL OR service.availableFrom <= :sDate)', { sDate });
+                    if (endDate && endDate !== 'Add dates') {
+                        const eDate = new Date(endDate);
+                        if (!isNaN(eDate.getTime())) {
+                            query.andWhere('(service.availableTo IS NULL OR service.availableTo >= :eDate)', { eDate });
+                        }
+                    }
+                }
+            }
+            catch (e) {
+                console.error('[ERROR] Parsing dates in service search:', e);
             }
         }
         if (monthsCount) {
@@ -70,6 +80,9 @@ let ServicesService = class ServicesService {
             query.andWhere('service.maxChildren >= :children', { children });
         }
         return query.getMany();
+    }
+    async findOne(id) {
+        return this.servicesRepository.findOne({ where: { id } });
     }
     create(service) {
         const newService = this.servicesRepository.create(service);

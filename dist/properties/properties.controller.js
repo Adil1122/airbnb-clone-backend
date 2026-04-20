@@ -21,6 +21,7 @@ let PropertiesController = class PropertiesController {
         this.propertiesService = propertiesService;
     }
     findAll(categoryId) {
+        console.log(`[DEBUG] Received request for all properties${categoryId ? ' with category ' + categoryId : ''}`);
         const numericCategoryId = categoryId ? parseInt(categoryId, 10) : undefined;
         return this.propertiesService.findAll(numericCategoryId);
     }

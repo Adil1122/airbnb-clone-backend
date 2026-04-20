@@ -17,6 +17,9 @@ let FiltersController = class FiltersController {
     constructor(filtersService) {
         this.filtersService = filtersService;
     }
+    getGlobalFilters() {
+        return this.filtersService.getGlobalFilters();
+    }
     getGuestCategories() {
         return this.filtersService.getGuestCategories();
     }
@@ -25,6 +28,12 @@ let FiltersController = class FiltersController {
     }
 };
 exports.FiltersController = FiltersController;
+__decorate([
+    (0, common_1.Get)(),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], FiltersController.prototype, "getGlobalFilters", null);
 __decorate([
     (0, common_1.Get)('guest-categories'),
     __metadata("design:type", Function),

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GuestCategory, SearchDuration } from '../entities/filter-options.entity';
+import { Property } from '../entities/property.entity';
 
 @Injectable()
 export class FiltersService {
@@ -10,7 +11,34 @@ export class FiltersService {
         private guestRepository: Repository<GuestCategory>,
         @InjectRepository(SearchDuration)
         private durationRepository: Repository<SearchDuration>,
+        @InjectRepository(Property)
+        private propertyRepository: Repository<Property>,
     ) { }
+
+    async getGlobalFilters(): Promise<any> {
+        const guestCategories = await this.getGuestCategories();
+        
+        // Use query builder to get min/max price and unique types
+        const priceStats = await this.propertyRepository
+            .createQueryBuilder('property')
+            .select('MIN(property.price)', 'minPrice')
+            .addSelect('MAX(property.price)', 'maxPrice')
+            .getRawOne();
+
+        const propertyTypes = await this.propertyRepository
+            .createQueryBuilder('property')
+            .select('DISTINCT(property.type)', 'type')
+            .getRawMany();
+
+        return {
+            guestCategories,
+            priceRange: {
+                min: parseFloat(priceStats.minPrice) || 0,
+                max: parseFloat(priceStats.maxPrice) || 500,
+            },
+            propertyTypes: propertyTypes.map(pt => pt.type),
+        };
+    }
 
     getGuestCategories(): Promise<GuestCategory[]> {
         return this.guestRepository.find();

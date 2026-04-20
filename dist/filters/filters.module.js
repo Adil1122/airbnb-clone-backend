@@ -12,12 +12,13 @@ const typeorm_1 = require("@nestjs/typeorm");
 const filters_service_1 = require("./filters.service");
 const filters_controller_1 = require("./filters.controller");
 const filter_options_entity_1 = require("../entities/filter-options.entity");
+const property_entity_1 = require("../entities/property.entity");
 let FiltersModule = class FiltersModule {
 };
 exports.FiltersModule = FiltersModule;
 exports.FiltersModule = FiltersModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([filter_options_entity_1.GuestCategory, filter_options_entity_1.SearchDuration])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([filter_options_entity_1.GuestCategory, filter_options_entity_1.SearchDuration, property_entity_1.Property])],
         providers: [filters_service_1.FiltersService],
         controllers: [filters_controller_1.FiltersController],
         exports: [filters_service_1.FiltersService],

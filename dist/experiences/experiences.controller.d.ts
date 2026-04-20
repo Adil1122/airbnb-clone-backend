@@ -5,4 +5,5 @@ export declare class ExperiencesController {
     constructor(experiencesService: ExperiencesService);
     findAll(): Promise<Experience[]>;
     search(location?: string, startDate?: string, endDate?: string, monthsCount?: string, flexibleType?: string, flexibleMonths?: string, adults?: string, children?: string): Promise<Experience[]>;
+    findOne(id: number): Promise<Experience | null>;
 }

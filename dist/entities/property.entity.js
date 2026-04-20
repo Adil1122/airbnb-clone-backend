@@ -15,6 +15,7 @@ const category_entity_1 = require("./category.entity");
 const property_image_entity_1 = require("./property-image.entity");
 const review_entity_1 = require("./review.entity");
 const property_rule_entity_1 = require("./property-rule.entity");
+const amenity_entity_1 = require("./amenity.entity");
 let Property = class Property {
     id;
     title;
@@ -50,6 +51,7 @@ let Property = class Property {
     images;
     reviews;
     rules;
+    amenities;
 };
 exports.Property = Property;
 __decorate([
@@ -188,6 +190,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => property_rule_entity_1.PropertyRule, (rule) => rule.property),
     __metadata("design:type", Array)
 ], Property.prototype, "rules", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => amenity_entity_1.Amenity, (amenity) => amenity.property),
+    __metadata("design:type", Array)
+], Property.prototype, "amenities", void 0);
 exports.Property = Property = __decorate([
     (0, typeorm_1.Entity)('properties')
 ], Property);

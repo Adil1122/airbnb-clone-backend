@@ -14,5 +14,6 @@ export declare class ServicesService {
         adults?: number;
         children?: number;
     }): Promise<Service[]>;
+    findOne(id: number): Promise<Service | null>;
     create(service: Partial<Service>): Promise<Service>;
 }

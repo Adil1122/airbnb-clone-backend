@@ -26,24 +26,30 @@ let ExperiencesService = class ExperiencesService {
         return this.experiencesRepository.find();
     }
     async search(params) {
+        console.log(`[DEBUG] Searching experiences with params:`, params);
         const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children } = params;
         const query = this.experiencesRepository.createQueryBuilder('experience');
-        if (location)
-            query.andWhere('experience.location LIKE :location', { location: `%${location}%` });
-        if (startDate) {
-            const sDate = new Date(startDate);
-            query.andWhere('experience.availableFrom <= :sDate', { sDate });
-            if (endDate) {
-                const eDate = new Date(endDate);
-                query.andWhere('experience.availableTo >= :eDate', { eDate });
-            }
+        if (location && location.trim() !== '' && !location.includes('Search destinations')) {
+            const keyword = location.split(/[, ]+/)[0];
+            console.log(`[DEBUG] Using location keyword: ${keyword}`);
+            query.andWhere('experience.location LIKE :keyword', { keyword: `%${keyword}%` });
         }
-        if (monthsCount) {
-            const today = new Date();
-            const future = new Date();
-            future.setMonth(today.getMonth() + monthsCount);
-            query.andWhere('experience.availableFrom <= :today', { today });
-            query.andWhere('experience.availableTo >= :future', { future });
+        if (startDate && startDate !== 'Add dates') {
+            try {
+                const sDate = new Date(startDate);
+                if (!isNaN(sDate.getTime())) {
+                    query.andWhere('(experience.availableFrom IS NULL OR experience.availableFrom <= :sDate)', { sDate });
+                    if (endDate && endDate !== 'Add dates') {
+                        const eDate = new Date(endDate);
+                        if (!isNaN(eDate.getTime())) {
+                            query.andWhere('(experience.availableTo IS NULL OR experience.availableTo >= :eDate)', { eDate });
+                        }
+                    }
+                }
+            }
+            catch (e) {
+                console.error('[ERROR] Parsing dates in search:', e);
+            }
         }
         if (flexibleMonths && flexibleMonths.length > 0) {
             const monthMap = {
@@ -67,6 +73,9 @@ let ExperiencesService = class ExperiencesService {
         if (children)
             query.andWhere('experience.maxChildren >= :children', { children });
         return query.getMany();
+    }
+    async findOne(id) {
+        return this.experiencesRepository.findOne({ where: { id } });
     }
     create(experience) {
         return this.experiencesRepository.save(experience);

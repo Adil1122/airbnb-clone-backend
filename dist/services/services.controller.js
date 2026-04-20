@@ -35,6 +35,9 @@ let ServicesController = class ServicesController {
             children: children ? parseInt(children, 10) : undefined,
         });
     }
+    findOne(id) {
+        return this.servicesService.findOne(id);
+    }
 };
 exports.ServicesController = ServicesController;
 __decorate([
@@ -57,6 +60,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ServicesController.prototype, "search", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ServicesController.prototype, "findOne", null);
 exports.ServicesController = ServicesController = __decorate([
     (0, common_1.Controller)('services'),
     __metadata("design:paramtypes", [services_service_1.ServicesService])

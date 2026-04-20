@@ -10,6 +10,7 @@ export class PropertiesController {
 
     @Get()
     findAll(@Query('categoryId') categoryId?: string): Promise<Property[]> {
+        console.log(`[DEBUG] Received request for all properties${categoryId ? ' with category ' + categoryId : ''}`);
         const numericCategoryId = categoryId ? parseInt(categoryId, 10) : undefined;
         return this.propertiesService.findAll(numericCategoryId);
     }

@@ -10,7 +10,7 @@ export declare class PaymentController {
         guests: number;
     }, req: any): Promise<{
         clientSecret: string | null;
-        paymentIntentId: string;
+        id: string;
     }>;
     confirmBooking(body: {
         paymentIntentId: string;
@@ -30,7 +30,7 @@ export declare class PaymentController {
         booking?: undefined;
     } | {
         success: boolean;
-        booking: import("../entities/booking.entity").Booking;
+        booking: import("../entities/booking.entity").Booking[];
         message?: undefined;
     }>;
     getBooking(id: string, req: any): Promise<import("../entities/booking.entity").Booking | {
@@ -57,8 +57,10 @@ export declare class PaymentController {
         booking: import("../entities/booking.entity").Booking;
         message?: undefined;
     }>;
-    getPaymentMethods(req: any): Promise<import("../entities/payment-method.entity").PaymentMethod[]>;
+    getPaymentMethods(req: any): Promise<import("stripe").Stripe.PaymentMethod[]>;
     savePaymentMethod(body: {
         paymentMethodId: string;
-    }, req: any): Promise<import("../entities/payment-method.entity").PaymentMethod | null>;
+    }, req: any): Promise<{
+        success: boolean;
+    }>;
 }

@@ -23,19 +23,20 @@ export class PropertiesService {
     ) { }
 
     findAll(categoryId?: number): Promise<Property[]> {
+        const relations = ['category', 'images'];
         if (categoryId) {
             return this.propertyRepository.find({
                 where: { category: { id: categoryId } },
-                relations: ['category'],
+                relations,
             });
         }
-        return this.propertyRepository.find({ relations: ['category'] });
+        return this.propertyRepository.find({ relations });
     }
 
     async findOne(id: number): Promise<Property | null> {
         const property = await this.propertyRepository.findOne({
             where: { id },
-            relations: ['category', 'images'],
+            relations: ['category', 'images', 'amenities', 'reviews', 'reviews.user'],
         });
         
         if (property) {
@@ -89,16 +90,25 @@ export class PropertiesService {
         const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children, infants, pets } = params;
         const query = this.propertyRepository.createQueryBuilder('property');
 
-        if (location) {
-            query.andWhere('property.location LIKE :location', { location: `%${location}%` });
+        if (location && location.trim() !== '' && !location.includes('Search destinations')) {
+            const keyword = location.split(/[, ]+/)[0];
+            query.andWhere('property.location LIKE :keyword', { keyword: `%${keyword}%` });
         }
 
-        if (startDate) {
-            const sDate = new Date(startDate);
-            query.andWhere('property.availableFrom <= :sDate', { sDate });
-            if (endDate) {
-                const eDate = new Date(endDate);
-                query.andWhere('property.availableTo >= :eDate', { eDate });
+        if (startDate && startDate !== 'Add dates') {
+            try {
+                const sDate = new Date(startDate);
+                if (!isNaN(sDate.getTime())) {
+                    query.andWhere('(property.availableFrom IS NULL OR property.availableFrom <= :sDate)', { sDate });
+                    if (endDate && endDate !== 'Add dates') {
+                        const eDate = new Date(endDate);
+                        if (!isNaN(eDate.getTime())) {
+                            query.andWhere('(property.availableTo IS NULL OR property.availableTo >= :eDate)', { eDate });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('[ERROR] Parsing dates in property search:', e);
             }
         }
 
@@ -144,6 +154,9 @@ export class PropertiesService {
         if (pets !== undefined) {
             query.andWhere('property.allowPets = :pets', { pets });
         }
+
+        query.leftJoinAndSelect('property.category', 'category')
+             .leftJoinAndSelect('property.images', 'images');
 
         return query.getMany();
     }

@@ -17,12 +17,35 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const filter_options_entity_1 = require("../entities/filter-options.entity");
+const property_entity_1 = require("../entities/property.entity");
 let FiltersService = class FiltersService {
     guestRepository;
     durationRepository;
-    constructor(guestRepository, durationRepository) {
+    propertyRepository;
+    constructor(guestRepository, durationRepository, propertyRepository) {
         this.guestRepository = guestRepository;
         this.durationRepository = durationRepository;
+        this.propertyRepository = propertyRepository;
+    }
+    async getGlobalFilters() {
+        const guestCategories = await this.getGuestCategories();
+        const priceStats = await this.propertyRepository
+            .createQueryBuilder('property')
+            .select('MIN(property.price)', 'minPrice')
+            .addSelect('MAX(property.price)', 'maxPrice')
+            .getRawOne();
+        const propertyTypes = await this.propertyRepository
+            .createQueryBuilder('property')
+            .select('DISTINCT(property.type)', 'type')
+            .getRawMany();
+        return {
+            guestCategories,
+            priceRange: {
+                min: parseFloat(priceStats.minPrice) || 0,
+                max: parseFloat(priceStats.maxPrice) || 500,
+            },
+            propertyTypes: propertyTypes.map(pt => pt.type),
+        };
     }
     getGuestCategories() {
         return this.guestRepository.find();
@@ -42,7 +65,9 @@ exports.FiltersService = FiltersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(filter_options_entity_1.GuestCategory)),
     __param(1, (0, typeorm_1.InjectRepository)(filter_options_entity_1.SearchDuration)),
+    __param(2, (0, typeorm_1.InjectRepository)(property_entity_1.Property)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], FiltersService);
 //# sourceMappingURL=filters.service.js.map

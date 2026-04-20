@@ -3,6 +3,7 @@ import { GuestCategory, SearchDuration } from '../entities/filter-options.entity
 export declare class FiltersController {
     private readonly filtersService;
     constructor(filtersService: FiltersService);
+    getGlobalFilters(): Promise<any>;
     getGuestCategories(): Promise<GuestCategory[]>;
     getSearchDurations(): Promise<SearchDuration[]>;
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { Service } from '../entities/service.entity';
 
@@ -32,5 +32,10 @@ export class ServicesController {
             adults: adults ? parseInt(adults, 10) : undefined,
             children: children ? parseInt(children, 10) : undefined,
         });
+    }
+
+    @Get(':id')
+    findOne(@Param('id', ParseIntPipe) id: number): Promise<Service | null> {
+        return this.servicesService.findOne(id);
     }
 }
