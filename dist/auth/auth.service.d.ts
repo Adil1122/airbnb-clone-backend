@@ -7,11 +7,7 @@ export declare class AuthService {
     private jwtService;
     constructor(usersRepository: Repository<User>, jwtService: JwtService);
     private generateVerificationToken;
-    register(registerDto: RegisterDto): Promise<{
-        message: string;
-        email: string;
-        needsVerification: boolean;
-    }>;
+    register(registerDto: RegisterDto): Promise<AuthResponseDto>;
     sendVerificationEmail(user: User): Promise<void>;
     verifyEmail(token: string, email: string): Promise<{
         success: boolean;
@@ -22,11 +18,5 @@ export declare class AuthService {
     }>;
     login(loginDto: LoginDto): Promise<AuthResponseDto>;
     validateUser(userId: number): Promise<User>;
-    getProfile(userId: number): Promise<{
-        id: number;
-        name: string;
-        email: string;
-        avatar: string | null;
-        isEmailVerified: boolean;
-    }>;
+    getProfile(userId: number): Promise<any>;
 }

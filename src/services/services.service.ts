@@ -14,6 +14,14 @@ export class ServicesService {
         return this.servicesRepository.find();
     }
 
+    async findAllCategories(): Promise<string[]> {
+        const results = await this.servicesRepository
+            .createQueryBuilder('service')
+            .select('DISTINCT service.category', 'category')
+            .getRawMany();
+        return results.map(r => r.category);
+    }
+
     async search(params: {
         location?: string;
         startDate?: string;
@@ -23,8 +31,9 @@ export class ServicesService {
         flexibleMonths?: string[];
         adults?: number;
         children?: number;
+        category?: string;
     }): Promise<Service[]> {
-        const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children } = params;
+        const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children, category } = params;
         const query = this.servicesRepository.createQueryBuilder('service');
 
         if (location && location.trim() !== '' && !location.includes('Search destinations')) {
@@ -81,6 +90,10 @@ export class ServicesService {
 
         if (children) {
             query.andWhere('service.maxChildren >= :children', { children });
+        }
+
+        if (category) {
+            query.andWhere('service.category = :category', { category });
         }
 
         return query.getMany();

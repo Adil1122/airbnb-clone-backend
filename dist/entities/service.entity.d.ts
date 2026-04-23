@@ -1,3 +1,4 @@
+import { User } from './user.entity';
 export declare class Service {
     id: number;
     title: string;
@@ -12,5 +13,6 @@ export declare class Service {
     maxAdults: number;
     maxChildren: number;
     maxInfants: number;
-    allowPets: boolean;
+    hostId: number;
+    host: User;
 }

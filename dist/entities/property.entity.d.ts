@@ -1,3 +1,4 @@
+import { User } from './user.entity';
 import { Category } from './category.entity';
 import { PropertyImage } from './property-image.entity';
 import { Review } from './review.entity';
@@ -34,6 +35,19 @@ export declare class Property {
     fastWifiDesc: string;
     hasGuestFavorite: boolean;
     guestFavoriteDesc: string;
+    hostId: number;
+    weekendPrice: number;
+    weeklyDiscount: number;
+    bookingType: string;
+    cancellationPolicy: string;
+    checkInMethod: string;
+    checkInInstructions: string;
+    wifiNetwork: string;
+    wifiPassword: string;
+    houseManual: string;
+    checkoutInstructions: string;
+    interactionPreference: string;
+    host: User;
     category: Category;
     images: PropertyImage[];
     reviews: Review[];

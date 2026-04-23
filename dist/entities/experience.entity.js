@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Experience = void 0;
 const typeorm_1 = require("typeorm");
+const user_entity_1 = require("./user.entity");
 let Experience = class Experience {
     id;
     title;
@@ -25,7 +26,8 @@ let Experience = class Experience {
     maxAdults;
     maxChildren;
     maxInfants;
-    allowPets;
+    hostId;
+    host;
 };
 exports.Experience = Experience;
 __decorate([
@@ -81,9 +83,14 @@ __decorate([
     __metadata("design:type", Number)
 ], Experience.prototype, "maxInfants", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ default: false }),
-    __metadata("design:type", Boolean)
-], Experience.prototype, "allowPets", void 0);
+    (0, typeorm_1.Column)({ name: 'host_id', nullable: true }),
+    __metadata("design:type", Number)
+], Experience.prototype, "hostId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.experiences),
+    (0, typeorm_1.JoinColumn)({ name: 'host_id' }),
+    __metadata("design:type", user_entity_1.User)
+], Experience.prototype, "host", void 0);
 exports.Experience = Experience = __decorate([
     (0, typeorm_1.Entity)('experiences')
 ], Experience);

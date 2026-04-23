@@ -8,6 +8,7 @@ import { DestinationsService } from './destinations/destinations.service';
 import { FiltersService } from './filters/filters.service';
 import { Category } from './entities/category.entity';
 import { User } from './entities/user.entity';
+import { Property } from './entities/property.entity';
 export declare class SeedService implements OnModuleInit {
     private readonly categoriesService;
     private readonly propertiesService;
@@ -16,7 +17,8 @@ export declare class SeedService implements OnModuleInit {
     private readonly destinationsService;
     private readonly filtersService;
     private readonly userRepository;
-    constructor(categoriesService: CategoriesService, propertiesService: PropertiesService, experiencesService: ExperiencesService, servicesService: ServicesService, destinationsService: DestinationsService, filtersService: FiltersService, userRepository: Repository<User>);
+    private readonly propertyRepository;
+    constructor(categoriesService: CategoriesService, propertiesService: PropertiesService, experiencesService: ExperiencesService, servicesService: ServicesService, destinationsService: DestinationsService, filtersService: FiltersService, userRepository: Repository<User>, propertyRepository: Repository<Property>);
     onModuleInit(): Promise<void>;
     private seedUsers;
     checkAndSeed(): Promise<void>;
@@ -25,7 +27,7 @@ export declare class SeedService implements OnModuleInit {
     seedSearchDurations(): Promise<void>;
     seedDestinations(): Promise<void>;
     seedCategories(): Promise<void>;
-    seedProperties(categories: Category[]): Promise<void>;
+    seedProperties(categories: Category[], users: any[]): Promise<void>;
     seedExperiences(): Promise<void>;
     seedServices(): Promise<void>;
     seedReviewsForProperty(propertyId: number, users: User[]): Promise<void>;

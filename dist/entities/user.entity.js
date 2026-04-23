@@ -11,6 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+const property_entity_1 = require("./property.entity");
+const experience_entity_1 = require("./experience.entity");
+const service_entity_1 = require("./service.entity");
 let User = class User {
     id;
     name;
@@ -23,6 +26,17 @@ let User = class User {
     emailVerificationExpires;
     verificationSentAt;
     stripeCustomerId;
+    role;
+    hostStatus;
+    hostSince;
+    hostBio;
+    hostLanguages;
+    isIdentityVerified;
+    isPhoneVerified;
+    isSuperhost;
+    properties;
+    experiences;
+    services;
     createdAt;
     updatedAt;
 };
@@ -71,6 +85,50 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "stripeCustomerId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', default: 'GUEST' }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "hostStatus", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "hostSince", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "hostBio", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'simple-array', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "hostLanguages", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isIdentityVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isPhoneVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isSuperhost", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => property_entity_1.Property, (property) => property.host),
+    __metadata("design:type", Array)
+], User.prototype, "properties", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => experience_entity_1.Experience, (experience) => experience.host),
+    __metadata("design:type", Array)
+], User.prototype, "experiences", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => service_entity_1.Service, (service) => service.host),
+    __metadata("design:type", Array)
+], User.prototype, "services", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

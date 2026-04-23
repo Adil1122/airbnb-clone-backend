@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity('services')
 export class Service {
@@ -41,6 +42,11 @@ export class Service {
     @Column({ default: 0 })
     maxInfants: number;
 
-    @Column({ default: false })
-    allowPets: boolean;
+
+    @Column({ name: 'host_id', nullable: true })
+    hostId: number;
+
+    @ManyToOne(() => User, (user) => user.services)
+    @JoinColumn({ name: 'host_id' })
+    host: User;
 }

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Property = void 0;
 const typeorm_1 = require("typeorm");
+const user_entity_1 = require("./user.entity");
 const category_entity_1 = require("./category.entity");
 const property_image_entity_1 = require("./property-image.entity");
 const review_entity_1 = require("./review.entity");
@@ -47,6 +48,19 @@ let Property = class Property {
     fastWifiDesc;
     hasGuestFavorite;
     guestFavoriteDesc;
+    hostId;
+    weekendPrice;
+    weeklyDiscount;
+    bookingType;
+    cancellationPolicy;
+    checkInMethod;
+    checkInInstructions;
+    wifiNetwork;
+    wifiPassword;
+    houseManual;
+    checkoutInstructions;
+    interactionPreference;
+    host;
     category;
     images;
     reviews;
@@ -174,6 +188,59 @@ __decorate([
     (0, typeorm_1.Column)('text', { nullable: true }),
     __metadata("design:type", String)
 ], Property.prototype, "guestFavoriteDesc", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: 'host_id', nullable: true }),
+    __metadata("design:type", Number)
+], Property.prototype, "hostId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 2, nullable: true }),
+    __metadata("design:type", Number)
+], Property.prototype, "weekendPrice", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 0 }),
+    __metadata("design:type", Number)
+], Property.prototype, "weeklyDiscount", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'enum', enum: ['instant', 'request'], default: 'request' }),
+    __metadata("design:type", String)
+], Property.prototype, "bookingType", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "cancellationPolicy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "checkInMethod", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "checkInInstructions", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "wifiNetwork", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "wifiPassword", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "houseManual", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "checkoutInstructions", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", String)
+], Property.prototype, "interactionPreference", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_entity_1.User, (user) => user.properties),
+    (0, typeorm_1.JoinColumn)({ name: 'host_id' }),
+    __metadata("design:type", user_entity_1.User)
+], Property.prototype, "host", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => category_entity_1.Category, (category) => category.properties),
     __metadata("design:type", category_entity_1.Category)

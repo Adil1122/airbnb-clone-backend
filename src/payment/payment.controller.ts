@@ -12,18 +12,26 @@ export class PaymentController {
     @Body() body: { amount: number; propertyId: number; checkIn: string; checkOut: string; guests: number },
     @Request() req,
   ) {
-    const result = await this.paymentService.createPaymentIntent(
-      req.user.id,
-      body.amount,
-      'usd',
-      {
-        propertyId: body.propertyId,
-        checkIn: body.checkIn,
-        checkOut: body.checkOut,
-        guests: body.guests,
-      },
-    );
-    return result;
+    try {
+      const result = await this.paymentService.createPaymentIntent(
+        req.user.id,
+        body.amount,
+        'usd',
+        {
+          propertyId: body.propertyId,
+          checkIn: body.checkIn,
+          checkOut: body.checkOut,
+          guests: body.guests,
+        },
+      );
+      return { success: true, ...result };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.message || 'Failed to create payment intent',
+        error: error.raw?.message || error.toString() 
+      };
+    }
   }
 
   @Post('confirm-booking')

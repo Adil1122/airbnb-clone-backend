@@ -23,20 +23,24 @@ export class PropertiesService {
     ) { }
 
     findAll(categoryId?: number): Promise<Property[]> {
-        const relations = ['category', 'images'];
+        const query = this.propertyRepository.createQueryBuilder('property')
+            .leftJoinAndSelect('property.category', 'category')
+            .leftJoinAndSelect('property.images', 'images')
+            .leftJoinAndSelect('property.host', 'host')
+            .where('property.status IN (:...statuses)', { statuses: ['ACTIVE', 'PUBLISHED'] })
+            .andWhere('host.isIdentityVerified = :verified', { verified: true });
+
         if (categoryId) {
-            return this.propertyRepository.find({
-                where: { category: { id: categoryId } },
-                relations,
-            });
+            query.andWhere('category.id = :categoryId', { categoryId });
         }
-        return this.propertyRepository.find({ relations });
+
+        return query.getMany();
     }
 
     async findOne(id: number): Promise<Property | null> {
         const property = await this.propertyRepository.findOne({
             where: { id },
-            relations: ['category', 'images', 'amenities', 'reviews', 'reviews.user'],
+            relations: ['category', 'images', 'amenities', 'reviews', 'reviews.user', 'host'],
         });
         
         if (property) {
@@ -156,7 +160,10 @@ export class PropertiesService {
         }
 
         query.leftJoinAndSelect('property.category', 'category')
-             .leftJoinAndSelect('property.images', 'images');
+             .leftJoinAndSelect('property.images', 'images')
+             .leftJoinAndSelect('property.host', 'host')
+             .andWhere('property.status = :status', { status: 'ACTIVE' })
+             .andWhere('host.isIdentityVerified = :verified', { verified: true });
 
         return query.getMany();
     }

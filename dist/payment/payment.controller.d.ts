@@ -11,6 +11,13 @@ export declare class PaymentController {
     }, req: any): Promise<{
         clientSecret: string | null;
         id: string;
+        success: boolean;
+        message?: undefined;
+        error?: undefined;
+    } | {
+        success: boolean;
+        message: any;
+        error: any;
     }>;
     confirmBooking(body: {
         paymentIntentId: string;

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { User } from './user.entity';
 import { Category } from './category.entity';
 import { PropertyImage } from './property-image.entity';
 import { Review } from './review.entity';
@@ -97,6 +98,47 @@ export class Property {
     @Column('text', { nullable: true })
     guestFavoriteDesc: string;
 
+
+    @Column({ name: 'host_id', nullable: true })
+    hostId: number;
+
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    weekendPrice: number;
+
+    @Column({ type: 'int', default: 0 })
+    weeklyDiscount: number;
+
+    @Column({ type: 'enum', enum: ['instant', 'request'], default: 'request' })
+    bookingType: string;
+
+    @Column({ type: 'text', nullable: true })
+    cancellationPolicy: string;
+
+    @Column({ type: 'text', nullable: true })
+    checkInMethod: string;
+
+    @Column({ type: 'text', nullable: true })
+    checkInInstructions: string;
+
+    @Column({ type: 'text', nullable: true })
+    wifiNetwork: string;
+
+    @Column({ type: 'text', nullable: true })
+    wifiPassword: string;
+
+    @Column({ type: 'text', nullable: true })
+    houseManual: string;
+
+    @Column({ type: 'text', nullable: true })
+    checkoutInstructions: string;
+
+    @Column({ type: 'text', nullable: true })
+    interactionPreference: string;
+
+    @ManyToOne(() => User, (user) => user.properties)
+    @JoinColumn({ name: 'host_id' })
+    host: User;
+
     @ManyToOne(() => Category, (category) => category.properties)
     category: Category;
 
@@ -112,3 +154,4 @@ export class Property {
     @OneToMany(() => Amenity, (amenity) => amenity.property)
     amenities: Amenity[];
 }
+

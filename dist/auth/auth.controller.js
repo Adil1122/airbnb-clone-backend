@@ -35,7 +35,7 @@ let AuthController = class AuthController {
         return this.authService.resendVerification(resendDto.email);
     }
     async getProfile(req) {
-        return this.authService.getProfile(req.user.userId);
+        return this.authService.getProfile(req.user.id);
     }
 };
 exports.AuthController = AuthController;

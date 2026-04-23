@@ -35,19 +35,21 @@ let PropertiesService = class PropertiesService {
         this.ruleCategoriesRepository = ruleCategoriesRepository;
     }
     findAll(categoryId) {
-        const relations = ['category', 'images'];
+        const query = this.propertyRepository.createQueryBuilder('property')
+            .leftJoinAndSelect('property.category', 'category')
+            .leftJoinAndSelect('property.images', 'images')
+            .leftJoinAndSelect('property.host', 'host')
+            .where('property.status IN (:...statuses)', { statuses: ['ACTIVE', 'PUBLISHED'] })
+            .andWhere('host.isIdentityVerified = :verified', { verified: true });
         if (categoryId) {
-            return this.propertyRepository.find({
-                where: { category: { id: categoryId } },
-                relations,
-            });
+            query.andWhere('category.id = :categoryId', { categoryId });
         }
-        return this.propertyRepository.find({ relations });
+        return query.getMany();
     }
     async findOne(id) {
         const property = await this.propertyRepository.findOne({
             where: { id },
-            relations: ['category', 'images', 'amenities', 'reviews', 'reviews.user'],
+            relations: ['category', 'images', 'amenities', 'reviews', 'reviews.user', 'host'],
         });
         if (property) {
             property.rules = await this.findRules(id);
@@ -139,7 +141,10 @@ let PropertiesService = class PropertiesService {
             query.andWhere('property.allowPets = :pets', { pets });
         }
         query.leftJoinAndSelect('property.category', 'category')
-            .leftJoinAndSelect('property.images', 'images');
+            .leftJoinAndSelect('property.images', 'images')
+            .leftJoinAndSelect('property.host', 'host')
+            .andWhere('property.status = :status', { status: 'ACTIVE' })
+            .andWhere('host.isIdentityVerified = :verified', { verified: true });
         return query.getMany();
     }
     async create(property) {

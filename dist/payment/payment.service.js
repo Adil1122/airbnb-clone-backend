@@ -30,48 +30,61 @@ let PaymentService = class PaymentService {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.stripe = new stripe_1.default(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-            apiVersion: '2025-01-27.acacia',
+            apiVersion: '2024-06-20',
         });
     }
     async createPaymentIntent(userId, amount, currency = 'usd', metadata = {}) {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (!user) {
-            throw new common_1.NotFoundException('User not found');
-        }
-        let stripeCustomerId = user.stripeCustomerId;
-        if (!stripeCustomerId) {
-            const customer = await this.stripe.customers.create({
-                email: user.email,
-                name: user.name,
+        try {
+            const user = await this.userRepository.findOne({ where: { id: userId } });
+            if (!user) {
+                throw new common_1.NotFoundException('User not found');
+            }
+            let stripeCustomerId = user.stripeCustomerId;
+            if (!stripeCustomerId) {
+                const customer = await this.stripe.customers.create({
+                    email: user.email,
+                    name: user.name,
+                });
+                stripeCustomerId = customer.id;
+                user.stripeCustomerId = stripeCustomerId;
+                await this.userRepository.save(user);
+            }
+            const paymentIntent = await this.stripe.paymentIntents.create({
+                amount: Math.round(amount * 100),
+                currency,
+                customer: stripeCustomerId,
+                metadata: {
+                    ...metadata,
+                    userId: userId.toString(),
+                },
             });
-            stripeCustomerId = customer.id;
-            user.stripeCustomerId = stripeCustomerId;
-            await this.userRepository.save(user);
+            return {
+                clientSecret: paymentIntent.client_secret,
+                id: paymentIntent.id,
+            };
         }
-        const paymentIntent = await this.stripe.paymentIntents.create({
-            amount: Math.round(amount * 100),
-            currency,
-            customer: stripeCustomerId,
-            metadata: {
-                ...metadata,
-                userId: userId.toString(),
-            },
-        });
-        return {
-            clientSecret: paymentIntent.client_secret,
-            id: paymentIntent.id,
-        };
+        catch (error) {
+            console.error('ERROR [PaymentService] createPaymentIntent:', error);
+            throw error;
+        }
     }
     async confirmPayment(paymentIntentId, bookingData) {
-        const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
-        if (paymentIntent.status !== 'succeeded') {
+        try {
+            const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+            if (paymentIntent.status !== 'succeeded' && paymentIntent.status !== 'requires_capture') {
+                console.warn(`[PaymentService] Payment intent status is ${paymentIntent.status}`);
+            }
+            const booking = this.bookingRepository.create({
+                ...bookingData,
+                stripePaymentIntentId: paymentIntentId,
+                status: booking_entity_1.BookingStatus.CONFIRMED,
+            });
+            return await this.bookingRepository.save(booking);
         }
-        const booking = this.bookingRepository.create({
-            ...bookingData,
-            stripePaymentIntentId: paymentIntentId,
-            status: booking_entity_1.BookingStatus.CONFIRMED,
-        });
-        return await this.bookingRepository.save(booking);
+        catch (error) {
+            console.error('ERROR [PaymentService] confirmPayment:', error);
+            throw error;
+        }
     }
     async getBooking(id) {
         return await this.bookingRepository.findOne({

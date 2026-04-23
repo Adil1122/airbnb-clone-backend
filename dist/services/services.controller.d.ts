@@ -4,6 +4,7 @@ export declare class ServicesController {
     private readonly servicesService;
     constructor(servicesService: ServicesService);
     findAll(): Promise<Service[]>;
-    search(location?: string, startDate?: string, endDate?: string, monthsCount?: string, flexibleType?: string, flexibleMonths?: string, adults?: string, children?: string): Promise<Service[]>;
+    findAllCategories(): Promise<string[]>;
+    search(location?: string, startDate?: string, endDate?: string, monthsCount?: string, flexibleType?: string, flexibleMonths?: string, adults?: string, children?: string, category?: string): Promise<Service[]>;
     findOne(id: number): Promise<Service | null>;
 }

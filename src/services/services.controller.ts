@@ -11,6 +11,11 @@ export class ServicesController {
         return this.servicesService.findAll();
     }
 
+    @Get('categories')
+    findAllCategories(): Promise<string[]> {
+        return this.servicesService.findAllCategories();
+    }
+
     @Get('search')
     search(
         @Query('location') location?: string,
@@ -21,6 +26,7 @@ export class ServicesController {
         @Query('flexibleMonths') flexibleMonths?: string,
         @Query('adults') adults?: string,
         @Query('children') children?: string,
+        @Query('category') category?: string,
     ): Promise<Service[]> {
         return this.servicesService.search({
             location,
@@ -31,6 +37,7 @@ export class ServicesController {
             flexibleMonths: flexibleMonths ? flexibleMonths.split(',') : undefined,
             adults: adults ? parseInt(adults, 10) : undefined,
             children: children ? parseInt(children, 10) : undefined,
+            category,
         });
     }
 

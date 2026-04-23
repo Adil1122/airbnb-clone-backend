@@ -56,6 +56,7 @@ const services_service_1 = require("./services/services.service");
 const destinations_service_1 = require("./destinations/destinations.service");
 const filters_service_1 = require("./filters/filters.service");
 const user_entity_1 = require("./entities/user.entity");
+const property_entity_1 = require("./entities/property.entity");
 const bcrypt = __importStar(require("bcrypt"));
 let SeedService = class SeedService {
     categoriesService;
@@ -65,7 +66,8 @@ let SeedService = class SeedService {
     destinationsService;
     filtersService;
     userRepository;
-    constructor(categoriesService, propertiesService, experiencesService, servicesService, destinationsService, filtersService, userRepository) {
+    propertyRepository;
+    constructor(categoriesService, propertiesService, experiencesService, servicesService, destinationsService, filtersService, userRepository, propertyRepository) {
         this.categoriesService = categoriesService;
         this.propertiesService = propertiesService;
         this.experiencesService = experiencesService;
@@ -73,6 +75,7 @@ let SeedService = class SeedService {
         this.destinationsService = destinationsService;
         this.filtersService = filtersService;
         this.userRepository = userRepository;
+        this.propertyRepository = propertyRepository;
     }
     async onModuleInit() {
         await this.checkAndSeed();
@@ -140,6 +143,8 @@ let SeedService = class SeedService {
                     ...userData,
                     password: hashedPassword,
                     isEmailVerified: true,
+                    isIdentityVerified: true,
+                    isPhoneVerified: true,
                     createdAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000 * 3),
                 });
                 await this.userRepository.save(user);
@@ -156,11 +161,12 @@ let SeedService = class SeedService {
         }
         const freshCategories = await this.categoriesService.findAll();
         await this.seedRuleCategories();
-        const properties = await this.propertiesService.findAll();
-        if (properties.length < 50) {
-            await this.seedProperties(freshCategories);
+        const propertyCount = await this.propertyRepository.count();
+        if (propertyCount < 50) {
+            await this.seedProperties(freshCategories, users);
         }
         else {
+            const properties = await this.propertyRepository.find();
             for (const prop of properties) {
                 const amenities = await this.propertiesService.findAmenities(prop.id);
                 if (amenities.length === 0) {
@@ -168,7 +174,7 @@ let SeedService = class SeedService {
                 }
             }
         }
-        const freshProperties = await this.propertiesService.findAll();
+        const freshProperties = await this.propertyRepository.find();
         console.log(`Seeding data for ${freshProperties.length} properties...`);
         for (const prop of freshProperties) {
             const reviews = await this.propertiesService.findReviews(prop.id);
@@ -200,7 +206,31 @@ let SeedService = class SeedService {
         if (durations.length === 0) {
             await this.seedSearchDurations();
         }
-        console.log('Seeding check complete!');
+        console.log('Running data cleanup...');
+        const allProperties = await this.propertyRepository.find({ relations: ['host'] });
+        const defaultHost = users[0];
+        for (const prop of allProperties) {
+            let updated = false;
+            if (prop.status !== 'ACTIVE') {
+                prop.status = 'ACTIVE';
+                updated = true;
+            }
+            if (!prop.host) {
+                prop.host = defaultHost;
+                updated = true;
+            }
+            if (updated) {
+                await this.propertyRepository.save(prop);
+            }
+        }
+        for (const user of users) {
+            if (!user.isIdentityVerified || !user.isPhoneVerified) {
+                user.isIdentityVerified = true;
+                user.isPhoneVerified = true;
+                await this.userRepository.save(user);
+            }
+        }
+        console.log('Seeding check and cleanup complete!');
     }
     async seedAmenitiesForProperty(propertyId) {
         const amenitiesList = [
@@ -287,7 +317,8 @@ let SeedService = class SeedService {
             await this.categoriesService.create(cat);
         }
     }
-    async seedProperties(categories) {
+    async seedProperties(categories, users) {
+        const defaultHost = users[0];
         const basePropertyData = [
             {
                 title: 'Modern Villa with Pool',
@@ -296,7 +327,7 @@ let SeedService = class SeedService {
                 rating: 4.9,
                 reviewCount: 156,
                 imageUrl: 'https://picsum.photos/seed/villa/800/800',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Villa',
                 category: categories[1],
                 availableFrom: new Date('2026-03-01'),
@@ -334,7 +365,7 @@ let SeedService = class SeedService {
                 rating: 4.8,
                 reviewCount: 89,
                 imageUrl: 'https://picsum.photos/seed/farm/800/800',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Farmhouse',
                 category: categories[2],
                 availableFrom: new Date('2026-03-01'),
@@ -372,7 +403,7 @@ let SeedService = class SeedService {
                 rating: 4.85,
                 reviewCount: 45,
                 imageUrl: 'https://picsum.photos/seed/lahore/800/800',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Traditional house',
                 category: categories[1],
                 availableFrom: new Date('2026-03-01'),
@@ -408,7 +439,7 @@ let SeedService = class SeedService {
                 rating: 4.95,
                 reviewCount: 203,
                 imageUrl: 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&w=800&q=80',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Castle',
                 category: categories[4],
                 availableFrom: new Date('2026-03-01'),
@@ -445,7 +476,7 @@ let SeedService = class SeedService {
                 rating: 4.7,
                 reviewCount: 124,
                 imageUrl: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=800&q=80',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Bungalow',
                 category: categories[1],
                 availableFrom: new Date('2026-03-01'),
@@ -481,7 +512,7 @@ let SeedService = class SeedService {
                 rating: 4.85,
                 reviewCount: 78,
                 imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
-                status: 'Available',
+                status: 'ACTIVE',
                 type: 'Cabin',
                 category: categories[3],
                 availableFrom: new Date('2026-03-01'),
@@ -527,7 +558,10 @@ let SeedService = class SeedService {
         ];
         for (let i = 0; i < 10; i++) {
             for (const prop of basePropertyData) {
-                const created = await this.propertiesService.create(prop);
+                const created = await this.propertiesService.create({
+                    ...prop,
+                    host: defaultHost,
+                });
                 for (const amenity of amenitiesList) {
                     await this.propertiesService.createAmenity({
                         ...amenity,
@@ -958,12 +992,14 @@ exports.SeedService = SeedService;
 exports.SeedService = SeedService = __decorate([
     (0, common_1.Injectable)(),
     __param(6, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(7, (0, typeorm_1.InjectRepository)(property_entity_1.Property)),
     __metadata("design:paramtypes", [categories_service_1.CategoriesService,
         properties_service_1.PropertiesService,
         experiences_service_1.ExperiencesService,
         services_service_1.ServicesService,
         destinations_service_1.DestinationsService,
         filters_service_1.FiltersService,
+        typeorm_2.Repository,
         typeorm_2.Repository])
 ], SeedService);
 //# sourceMappingURL=seed.service.js.map

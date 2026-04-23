@@ -16,59 +16,69 @@ export class PaymentService {
     private userRepository: Repository<User>,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
-      apiVersion: '2025-01-27.acacia' as any,
+      apiVersion: '2024-06-20' as any,
     });
   }
 
   async createPaymentIntent(userId: number, amount: number, currency: string = 'usd', metadata: any = {}) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    try {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
 
-    let stripeCustomerId = user.stripeCustomerId;
+      let stripeCustomerId = user.stripeCustomerId;
 
-    if (!stripeCustomerId) {
-      const customer = await this.stripe.customers.create({
-        email: user.email,
-        name: user.name,
+      if (!stripeCustomerId) {
+        const customer = await this.stripe.customers.create({
+          email: user.email,
+          name: user.name,
+        });
+        stripeCustomerId = customer.id;
+        user.stripeCustomerId = stripeCustomerId;
+        await this.userRepository.save(user);
+      }
+
+      const paymentIntent = await this.stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Stripe uses cents
+        currency,
+        customer: stripeCustomerId,
+        metadata: {
+          ...metadata,
+          userId: userId.toString(),
+        },
       });
-      stripeCustomerId = customer.id;
-      user.stripeCustomerId = stripeCustomerId;
-      await this.userRepository.save(user);
+
+      return {
+        clientSecret: paymentIntent.client_secret,
+        id: paymentIntent.id,
+      };
+    } catch (error) {
+      console.error('ERROR [PaymentService] createPaymentIntent:', error);
+      throw error;
     }
-
-    const paymentIntent = await this.stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe uses cents
-      currency,
-      customer: stripeCustomerId,
-      metadata: {
-        ...metadata,
-        userId: userId.toString(),
-      },
-    });
-
-    return {
-      clientSecret: paymentIntent.client_secret,
-      id: paymentIntent.id,
-    };
   }
 
   async confirmPayment(paymentIntentId: string, bookingData: any) {
-    const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+    try {
+      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
 
-    if (paymentIntent.status !== 'succeeded') {
-      // payment failed logic could go here
+      if (paymentIntent.status !== 'succeeded' && paymentIntent.status !== 'requires_capture') {
+        console.warn(`[PaymentService] Payment intent status is ${paymentIntent.status}`);
+      }
+
+      const booking = this.bookingRepository.create({
+        ...bookingData,
+        stripePaymentIntentId: paymentIntentId,
+        status: BookingStatus.CONFIRMED,
+      });
+
+      return await this.bookingRepository.save(booking);
+    } catch (error) {
+      console.error('ERROR [PaymentService] confirmPayment:', error);
+      throw error;
     }
-
-    const booking = this.bookingRepository.create({
-      ...bookingData,
-      stripePaymentIntentId: paymentIntentId,
-      status: BookingStatus.CONFIRMED,
-    });
-
-    return await this.bookingRepository.save(booking);
   }
 
   async getBooking(id: number) {

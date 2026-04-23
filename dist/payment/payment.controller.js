@@ -22,13 +22,22 @@ let PaymentController = class PaymentController {
         this.paymentService = paymentService;
     }
     async createPaymentIntent(body, req) {
-        const result = await this.paymentService.createPaymentIntent(req.user.id, body.amount, 'usd', {
-            propertyId: body.propertyId,
-            checkIn: body.checkIn,
-            checkOut: body.checkOut,
-            guests: body.guests,
-        });
-        return result;
+        try {
+            const result = await this.paymentService.createPaymentIntent(req.user.id, body.amount, 'usd', {
+                propertyId: body.propertyId,
+                checkIn: body.checkIn,
+                checkOut: body.checkOut,
+                guests: body.guests,
+            });
+            return { success: true, ...result };
+        }
+        catch (error) {
+            return {
+                success: false,
+                message: error.message || 'Failed to create payment intent',
+                error: error.raw?.message || error.toString()
+            };
+        }
     }
     async confirmBooking(body, req) {
         const booking = await this.paymentService.confirmPayment(body.paymentIntentId, {

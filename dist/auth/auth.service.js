@@ -67,35 +67,27 @@ let AuthService = class AuthService {
         const { name, email, password } = registerDto;
         const existingUser = await this.usersRepository.findOne({ where: { email } });
         if (existingUser) {
-            if (!existingUser.isEmailVerified) {
-                await this.sendVerificationEmail(existingUser);
-                return {
-                    message: 'An unverified account exists with this email. A new verification email has been sent.',
-                    email,
-                    needsVerification: true
-                };
-            }
             throw new common_1.ConflictException('Email already registered');
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const verificationToken = this.generateVerificationToken();
-        const verificationExpires = new Date();
-        verificationExpires.setHours(verificationExpires.getHours() + 24);
         const user = this.usersRepository.create({
             name,
             email,
             password: hashedPassword,
-            emailVerificationToken: verificationToken,
-            emailVerificationExpires: verificationExpires,
-            verificationSentAt: new Date(),
+            isEmailVerified: true,
         });
         await this.usersRepository.save(user);
-        await this.sendVerificationEmail(user);
+        const payload = { sub: user.id, email: user.email };
+        const accessToken = this.jwtService.sign(payload);
         return {
-            message: 'Registration successful! Please check your email to verify your account.',
-            email,
-            needsVerification: true
+            accessToken,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar,
+            },
         };
     }
     async sendVerificationEmail(user) {
@@ -163,9 +155,6 @@ let AuthService = class AuthService {
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
-        if (!user.isEmailVerified) {
-            throw new common_1.UnauthorizedException('Please verify your email before logging in.');
-        }
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Invalid credentials');
@@ -197,6 +186,8 @@ let AuthService = class AuthService {
             email: user.email,
             avatar: user.avatar,
             isEmailVerified: user.isEmailVerified,
+            isIdentityVerified: user.isIdentityVerified,
+            isPhoneVerified: user.isPhoneVerified,
         };
     }
 };

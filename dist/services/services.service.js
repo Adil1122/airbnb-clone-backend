@@ -25,8 +25,15 @@ let ServicesService = class ServicesService {
     async findAll() {
         return this.servicesRepository.find();
     }
+    async findAllCategories() {
+        const results = await this.servicesRepository
+            .createQueryBuilder('service')
+            .select('DISTINCT service.category', 'category')
+            .getRawMany();
+        return results.map(r => r.category);
+    }
     async search(params) {
-        const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children } = params;
+        const { location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children, category } = params;
         const query = this.servicesRepository.createQueryBuilder('service');
         if (location && location.trim() !== '' && !location.includes('Search destinations')) {
             const keyword = location.split(/[, ]+/)[0];
@@ -78,6 +85,9 @@ let ServicesService = class ServicesService {
         }
         if (children) {
             query.andWhere('service.maxChildren >= :children', { children });
+        }
+        if (category) {
+            query.andWhere('service.category = :category', { category });
         }
         return query.getMany();
     }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -12,8 +12,10 @@ import { FiltersModule } from './filters/filters.module';
 import { SeedService } from './seed.service';
 import { AuthModule } from './auth/auth.module';
 import { PaymentModule } from './payment/payment.module';
+import { HostModule } from './host/host.module';
 import { User } from './entities/user.entity';
 import { Booking } from './entities/booking.entity';
+import { Property } from './entities/property.entity';
 
 @Module({
   imports: [
@@ -26,9 +28,9 @@ import { Booking } from './entities/booking.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
-    TypeOrmModule.forFeature([User, Booking]),
+    TypeOrmModule.forFeature([User, Booking, Property]),
     CategoriesModule,
     PropertiesModule,
     ExperiencesModule,
@@ -37,8 +39,15 @@ import { Booking } from './entities/booking.entity';
     FiltersModule,
     AuthModule,
     PaymentModule,
+    HostModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedService],
 })
-export class AppModule { }
+export class AppModule implements OnModuleInit {
+  constructor(private readonly seedService: SeedService) {}
+
+  async onModuleInit() {
+    await this.seedService.checkAndSeed();
+  }
+}

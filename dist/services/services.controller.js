@@ -23,7 +23,10 @@ let ServicesController = class ServicesController {
     findAll() {
         return this.servicesService.findAll();
     }
-    search(location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children) {
+    findAllCategories() {
+        return this.servicesService.findAllCategories();
+    }
+    search(location, startDate, endDate, monthsCount, flexibleType, flexibleMonths, adults, children, category) {
         return this.servicesService.search({
             location,
             startDate,
@@ -33,6 +36,7 @@ let ServicesController = class ServicesController {
             flexibleMonths: flexibleMonths ? flexibleMonths.split(',') : undefined,
             adults: adults ? parseInt(adults, 10) : undefined,
             children: children ? parseInt(children, 10) : undefined,
+            category,
         });
     }
     findOne(id) {
@@ -47,6 +51,12 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ServicesController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('categories'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ServicesController.prototype, "findAllCategories", null);
+__decorate([
     (0, common_1.Get)('search'),
     __param(0, (0, common_1.Query)('location')),
     __param(1, (0, common_1.Query)('startDate')),
@@ -56,8 +66,9 @@ __decorate([
     __param(5, (0, common_1.Query)('flexibleMonths')),
     __param(6, (0, common_1.Query)('adults')),
     __param(7, (0, common_1.Query)('children')),
+    __param(8, (0, common_1.Query)('category')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ServicesController.prototype, "search", null);
 __decorate([

@@ -36,7 +36,7 @@ let PropertiesController = class PropertiesController {
             adults: adults ? parseInt(adults, 10) : undefined,
             children: children ? parseInt(children, 10) : undefined,
             infants: infants ? parseInt(infants, 10) : undefined,
-            pets: pets === 'true',
+            pets: pets !== undefined ? pets === 'true' : undefined,
         });
     }
     findOne(id) {
