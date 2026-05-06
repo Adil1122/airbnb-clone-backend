@@ -114,6 +114,9 @@ export class Property {
     @Column({ type: 'text', nullable: true })
     cancellationPolicy: string;
 
+    @Column({ type: 'int', default: 1 })
+    minNights: number;
+
     @Column({ type: 'text', nullable: true })
     checkInMethod: string;
 

@@ -1,73 +1,39 @@
+import { type RawBodyRequest } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import type { Request as ExpressRequest } from 'express';
 export declare class PaymentController {
-    private paymentService;
+    private readonly paymentService;
     constructor(paymentService: PaymentService);
     createPaymentIntent(body: {
         amount: number;
         propertyId: number;
-        checkIn: string;
-        checkOut: string;
-        guests: number;
+        hostId: number;
+        serviceFee: number;
+        currency?: string;
     }, req: any): Promise<{
         clientSecret: string | null;
         id: string;
-        success: boolean;
-        message?: undefined;
-        error?: undefined;
-    } | {
-        success: boolean;
-        message: any;
-        error: any;
     }>;
-    confirmBooking(body: {
-        paymentIntentId: string;
-        propertyId: number;
-        checkIn: string;
-        checkOut: string;
-        guests: number;
-        totalPrice: number;
-        serviceFee: number;
-        cleaningFee: number;
-        propertyPrice: number;
-        nights: number;
-        messageToHost?: string;
-    }, req: any): Promise<{
-        success: boolean;
-        message: string;
-        booking?: undefined;
-    } | {
-        success: boolean;
-        booking: import("../entities/booking.entity").Booking[];
-        message?: undefined;
-    }>;
-    getBooking(id: string, req: any): Promise<import("../entities/booking.entity").Booking | {
-        error: string;
-    }>;
-    getBookings(req: any): Promise<import("../entities/booking.entity").Booking[]>;
-    cancelBooking(id: string, req: any): Promise<{
-        success: boolean;
-        message: string;
-        booking?: undefined;
-    } | {
-        success: boolean;
-        booking: import("../entities/booking.entity").Booking;
-        message?: undefined;
-    }>;
-    updateMessage(id: string, body: {
-        message: string;
-    }, req: any): Promise<{
-        success: boolean;
-        message: string;
-        booking?: undefined;
-    } | {
-        success: boolean;
-        booking: import("../entities/booking.entity").Booking;
-        message?: undefined;
-    }>;
+    capturePayment(body: {
+        bookingId: number;
+    }): Promise<import("../entities/booking.entity").Booking>;
+    refundPayment(body: {
+        bookingId: number;
+        amount?: number;
+    }): Promise<import("../entities/booking.entity").Booking>;
     getPaymentMethods(req: any): Promise<import("stripe").Stripe.PaymentMethod[]>;
     savePaymentMethod(body: {
         paymentMethodId: string;
     }, req: any): Promise<{
         success: boolean;
+    }>;
+    createHostStripeAccount(req: any): Promise<{
+        accountId: string;
+    }>;
+    createOnboardingLink(req: any): Promise<{
+        url: string;
+    }>;
+    handleWebhook(req: RawBodyRequest<ExpressRequest>, signature: string): Promise<{
+        received: boolean;
     }>;
 }

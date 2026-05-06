@@ -23,13 +23,19 @@ export class User {
   @Column({ nullable: true })
   phone: string;
 
+  @Column({ type: 'text', nullable: true })
+  mailingAddress: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  emergencyContact: string | null;
+
   @Column({ default: false })
   isEmailVerified: boolean;
 
   @Column({ nullable: true, type: 'varchar' })
   emailVerificationToken: string | null;
 
-  @Column({ nullable: true, type: 'datetime' })
+  @Column({ nullable: true, type: 'timestamp' })
   emailVerificationExpires: Date | null;
 
   @Column({ nullable: true })
@@ -37,6 +43,12 @@ export class User {
 
   @Column({ nullable: true })
   stripeCustomerId: string;
+  
+  @Column({ nullable: true })
+  stripeAccountId: string;
+
+  @Column({ default: false })
+  isStripeConnected: boolean;
 
 
   @Column({ type: 'varchar', default: 'GUEST' })
@@ -45,7 +57,7 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   hostStatus: string | null;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
   hostSince: Date | null;
 
   @Column({ type: 'text', nullable: true })
@@ -59,6 +71,51 @@ export class User {
 
   @Column({ default: false })
   isPhoneVerified: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  location: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  work: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  school: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  bornDecade: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  dreamDestination: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  funFact: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  pets: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  timeSpender: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  favSong: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  uselessSkill: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  bioTitle: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  obsessedWith: string | null;
+
+  @Column({ type: 'simple-array', nullable: true })
+  interests: string[] | null;
+
+  @Column({ type: 'simple-array', nullable: true })
+  travelStamps: string[] | null;
+
+  @Column({ default: false })
+  showStamps: boolean;
 
   @Column({ default: false })
   isSuperhost: boolean;

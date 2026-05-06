@@ -17,13 +17,42 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const destination_entity_1 = require("../entities/destination.entity");
+const property_entity_1 = require("../entities/property.entity");
 let DestinationsService = class DestinationsService {
     destinationsRepository;
-    constructor(destinationsRepository) {
+    propertyRepository;
+    constructor(destinationsRepository, propertyRepository) {
         this.destinationsRepository = destinationsRepository;
+        this.propertyRepository = propertyRepository;
     }
-    findAll() {
-        return this.destinationsRepository.find();
+    async findAll() {
+        const curated = await this.destinationsRepository.find();
+        const properties = await this.propertyRepository.find({
+            where: { status: 'PUBLISHED' },
+            select: ['location']
+        });
+        const propertyCities = new Set();
+        properties.forEach(p => {
+            if (p.location) {
+                const city = p.location.split(',')[0].trim();
+                if (city)
+                    propertyCities.add(city);
+            }
+        });
+        const curatedNames = new Set(curated.map(d => d.name.toLowerCase()));
+        const dynamicDestinations = [];
+        propertyCities.forEach(city => {
+            if (!curatedNames.has(city.toLowerCase())) {
+                const d = new destination_entity_1.Destination();
+                d.id = 0;
+                d.name = city;
+                d.region = 'World';
+                d.type = 'city';
+                d.imageUrl = 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+                dynamicDestinations.push(d);
+            }
+        });
+        return [...curated, ...dynamicDestinations];
     }
     create(destination) {
         return this.destinationsRepository.save(destination);
@@ -33,6 +62,8 @@ exports.DestinationsService = DestinationsService;
 exports.DestinationsService = DestinationsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(destination_entity_1.Destination)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(1, (0, typeorm_1.InjectRepository)(property_entity_1.Property)),
+    __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository])
 ], DestinationsService);
 //# sourceMappingURL=destinations.service.js.map

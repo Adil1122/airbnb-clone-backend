@@ -13,12 +13,13 @@ const payment_controller_1 = require("./payment.controller");
 const payment_service_1 = require("./payment.service");
 const booking_entity_1 = require("../entities/booking.entity");
 const user_entity_1 = require("../entities/user.entity");
+const stripe_webhook_event_entity_1 = require("../entities/stripe-webhook-event.entity");
 let PaymentModule = class PaymentModule {
 };
 exports.PaymentModule = PaymentModule;
 exports.PaymentModule = PaymentModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([booking_entity_1.Booking, user_entity_1.User])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([booking_entity_1.Booking, user_entity_1.User, stripe_webhook_event_entity_1.StripeWebhookEvent])],
         controllers: [payment_controller_1.PaymentController],
         providers: [payment_service_1.PaymentService],
         exports: [payment_service_1.PaymentService],

@@ -22,13 +22,13 @@ export class PropertyRule {
     @Column({ nullable: true })
     categoryId: number;
 
-    @Column({ length: 255 })
+    @Column({ length: 255, nullable: true })
     categoryName: string;
 
     @Column({ length: 255, nullable: true })
     categoryIcon: string;
 
-    @Column({ length: 255 })
+    @Column({ length: 255, nullable: true })
     title: string;
 
     @Column({ type: 'text', nullable: true })

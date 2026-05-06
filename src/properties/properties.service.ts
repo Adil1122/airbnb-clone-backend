@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { Property } from '../entities/property.entity';
 import { Amenity } from '../entities/amenity.entity';
 import { Review } from '../entities/review.entity';
@@ -95,8 +95,14 @@ export class PropertiesService {
         const query = this.propertyRepository.createQueryBuilder('property');
 
         if (location && location.trim() !== '' && !location.includes('Search destinations')) {
-            const keyword = location.split(/[, ]+/)[0];
-            query.andWhere('property.location LIKE :keyword', { keyword: `%${keyword}%` });
+            const keywords = location.split(/[, ]+/).filter(k => k.trim().length > 0);
+            if (keywords.length > 0) {
+                query.andWhere(new Brackets(qb => {
+                    keywords.forEach((keyword, i) => {
+                        qb.orWhere(`property.location LIKE :keyword${i}`, { [`keyword${i}`]: `%${keyword}%` });
+                    });
+                }));
+            }
         }
 
         if (startDate && startDate !== 'Add dates') {
@@ -162,7 +168,7 @@ export class PropertiesService {
         query.leftJoinAndSelect('property.category', 'category')
              .leftJoinAndSelect('property.images', 'images')
              .leftJoinAndSelect('property.host', 'host')
-             .andWhere('property.status = :status', { status: 'ACTIVE' })
+             .andWhere('property.status IN (:...statuses)', { statuses: ['ACTIVE', 'PUBLISHED'] })
              .andWhere('host.isIdentityVerified = :verified', { verified: true });
 
         return query.getMany();

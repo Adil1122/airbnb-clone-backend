@@ -12,6 +12,7 @@ import { Booking } from '../entities/booking.entity';
 import { PropertyRule } from '../entities/property-rule.entity';
 import { Review } from '../entities/review.entity';
 import { User } from '../entities/user.entity';
+import { Destination } from '../entities/destination.entity';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { User } from '../entities/user.entity';
       Booking,
       PropertyRule,
       Review,
-      User
+      User,
+      Destination
     ]),
   ],
   controllers: [HostController],

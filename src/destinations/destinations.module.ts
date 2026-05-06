@@ -3,10 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DestinationsService } from './destinations.service';
 import { DestinationsController } from './destinations.controller';
 import { Destination } from '../entities/destination.entity';
+import { Property } from '../entities/property.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Destination])],
-    providers: [DestinationsService],
+    imports: [
+    TypeOrmModule.forFeature([Destination, Property]),
+  ],  providers: [DestinationsService],
     controllers: [DestinationsController],
     exports: [DestinationsService],
 })

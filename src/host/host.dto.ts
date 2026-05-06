@@ -13,6 +13,10 @@ export class UpdateBasicsDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @IsOptional()
+  @IsString()
+  status?: string;
 }
 
 export class UpdateFloorPlanDto {
@@ -75,8 +79,9 @@ export class UpdatePricingDto {
 }
 
 export class UpdatePoliciesDto {
+  @IsOptional()
   @IsBoolean()
-  allowPets: boolean;
+  allowPets?: boolean;
 
   @IsOptional()
   @IsString()
@@ -85,6 +90,10 @@ export class UpdatePoliciesDto {
   @IsOptional()
   @IsString()
   cancellationPolicy?: string;
+
+  @IsOptional()
+  @IsNumber()
+  minNights?: number;
 }
 
 export class UpdateAmenitiesDto {
@@ -107,5 +116,7 @@ export class UpdateCalendarDto {
   @IsString() date: string; // YYYY-MM-DD
   @IsOptional() @IsNumber() priceOverride?: number;
   @IsOptional() @IsBoolean() isAvailable?: boolean;
+  @IsOptional() @IsNumber() minNights?: number;
+  @IsOptional() @IsString() cancellationPolicy?: string;
 }
 

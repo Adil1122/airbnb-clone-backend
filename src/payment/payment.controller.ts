@@ -1,116 +1,38 @@
-import { Controller, Post, Get, Body, Param, UseGuards, Request, Query } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, UseGuards, Request, Headers, type RawBodyRequest } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { Request as ExpressRequest } from 'express';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private paymentService: PaymentService) { }
+  constructor(private readonly paymentService: PaymentService) { }
 
   @Post('create-payment-intent')
   @UseGuards(JwtAuthGuard)
   async createPaymentIntent(
-    @Body() body: { amount: number; propertyId: number; checkIn: string; checkOut: string; guests: number },
+    @Body() body: { amount: number; propertyId: number; hostId: number; serviceFee: number; currency?: string },
     @Request() req,
   ) {
-    try {
-      const result = await this.paymentService.createPaymentIntent(
-        req.user.id,
-        body.amount,
-        'usd',
-        {
-          propertyId: body.propertyId,
-          checkIn: body.checkIn,
-          checkOut: body.checkOut,
-          guests: body.guests,
-        },
-      );
-      return { success: true, ...result };
-    } catch (error) {
-      return { 
-        success: false, 
-        message: error.message || 'Failed to create payment intent',
-        error: error.raw?.message || error.toString() 
-      };
-    }
+    return this.paymentService.createPaymentIntent(
+      req.user.id,
+      body.propertyId,
+      body.hostId,
+      body.amount,
+      body.serviceFee,
+      body.currency,
+    );
   }
 
-  @Post('confirm-booking')
+  @Post('capture')
   @UseGuards(JwtAuthGuard)
-  async confirmBooking(
-    @Body() body: {
-      paymentIntentId: string;
-      propertyId: number;
-      checkIn: string;
-      checkOut: string;
-      guests: number;
-      totalPrice: number;
-      serviceFee: number;
-      cleaningFee: number;
-      propertyPrice: number;
-      nights: number;
-      messageToHost?: string;
-    },
-    @Request() req,
-  ) {
-    const booking = await this.paymentService.confirmPayment(body.paymentIntentId, {
-      propertyId: body.propertyId,
-      userId: req.user.id,
-      checkIn: new Date(body.checkIn),
-      checkOut: new Date(body.checkOut),
-      guests: body.guests,
-      totalPrice: body.totalPrice,
-      serviceFee: body.serviceFee,
-      cleaningFee: body.cleaningFee,
-      propertyPrice: body.propertyPrice,
-      nights: body.nights,
-      messageToHost: body.messageToHost,
-    });
-
-    if (!booking) {
-      return { success: false, message: 'Payment not completed or booking failed' };
-    }
-
-    return { success: true, booking };
+  async capturePayment(@Body() body: { bookingId: number }) {
+    return this.paymentService.capturePayment(body.bookingId);
   }
 
-  @Get('booking/:id')
+  @Post('refund')
   @UseGuards(JwtAuthGuard)
-  async getBooking(@Param('id') id: string, @Request() req) {
-    const booking = await this.paymentService.getBooking(parseInt(id));
-    if (!booking || booking.userId !== req.user.id) {
-      return { error: 'Booking not found' };
-    }
-    return booking;
-  }
-
-  @Get('bookings')
-  @UseGuards(JwtAuthGuard)
-  async getBookings(@Request() req) {
-    return await this.paymentService.getBookingsByUser(req.user.id);
-  }
-
-  @Post('cancel/:id')
-  @UseGuards(JwtAuthGuard)
-  async cancelBooking(@Param('id') id: string, @Request() req) {
-    const booking = await this.paymentService.cancelBooking(parseInt(id), req.user.id);
-    if (!booking) {
-      return { success: false, message: 'Booking not found' };
-    }
-    return { success: true, booking };
-  }
-
-  @Post('update-message/:id')
-  @UseGuards(JwtAuthGuard)
-  async updateMessage(
-    @Param('id') id: string,
-    @Body() body: { message: string },
-    @Request() req,
-  ) {
-    const booking = await this.paymentService.updateBookingMessage(parseInt(id), req.user.id, body.message);
-    if (!booking) {
-      return { success: false, message: 'Booking not found' };
-    }
-    return { success: true, booking };
+  async refundPayment(@Body() body: { bookingId: number; amount?: number }) {
+    return this.paymentService.refundPayment(body.bookingId, body.amount);
   }
 
   @Get('methods')
@@ -126,5 +48,25 @@ export class PaymentController {
     @Request() req,
   ) {
     return await this.paymentService.savePaymentMethod(req.user.id, body.paymentMethodId);
+  }
+
+  @Post('host/create-account')
+  @UseGuards(JwtAuthGuard)
+  async createHostStripeAccount(@Request() req) {
+    return await this.paymentService.createStripeAccount(req.user.id);
+  }
+
+  @Post('host/create-onboarding-link')
+  @UseGuards(JwtAuthGuard)
+  async createOnboardingLink(@Request() req) {
+    return await this.paymentService.createStripeAccountLink(req.user.id);
+  }
+
+  @Post('webhook')
+  async handleWebhook(
+    @Request() req: RawBodyRequest<ExpressRequest>,
+    @Headers('stripe-signature') signature: string,
+  ) {
+    return this.paymentService.handleWebhook(req.rawBody, signature);
   }
 }

@@ -137,10 +137,9 @@ export class SeedService implements OnModuleInit {
         console.log(`Seeding data for ${freshProperties.length} properties...`);
         
         for (const prop of freshProperties) {
-            const reviews = await this.propertiesService.findReviews(prop.id);
-            if (reviews.length === 0) {
-                await this.seedReviewsForProperty(prop.id, users);
-            }
+            // if (reviews.length === 0) {
+            //     await this.seedReviewsForProperty(prop.id, users);
+            // }
 
             await this.propertiesService.deleteRulesByPropertyId(prop.id);
             await this.seedRulesForProperty(prop.id, prop.maxAdults);
@@ -305,8 +304,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Modern Villa with Pool',
                 location: 'Bangkok, Thailand',
                 price: 150,
-                rating: 4.9,
-                reviewCount: 156,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://picsum.photos/seed/villa/800/800',
                 status: 'ACTIVE',
                 type: 'Villa',
@@ -343,8 +342,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Cozy Farmhouse',
                 location: 'Chiang Mai, Thailand',
                 price: 80,
-                rating: 4.8,
-                reviewCount: 89,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://picsum.photos/seed/farm/800/800',
                 status: 'ACTIVE',
                 type: 'Farmhouse',
@@ -381,8 +380,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Heritage Home Lahore',
                 location: 'Lahore, Pakistan',
                 price: 110,
-                rating: 4.85,
-                reviewCount: 45,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://picsum.photos/seed/lahore/800/800',
                 status: 'ACTIVE',
                 type: 'Traditional house',
@@ -417,8 +416,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Historic Castle Stay',
                 location: 'Edinburgh, UK',
                 price: 450,
-                rating: 4.95,
-                reviewCount: 203,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?auto=format&fit=crop&w=800&q=80',
                 status: 'ACTIVE',
                 type: 'Castle',
@@ -454,8 +453,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Beachfront Bungalow',
                 location: 'Phuket, Thailand',
                 price: 200,
-                rating: 4.7,
-                reviewCount: 124,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=800&q=80',
                 status: 'ACTIVE',
                 type: 'Bungalow',
@@ -490,8 +489,8 @@ export class SeedService implements OnModuleInit {
                 title: 'Mountain Retreat Cabin',
                 location: 'Swiss Alps, Switzerland',
                 price: 300,
-                rating: 4.85,
-                reviewCount: 78,
+                rating: 0,
+                reviewCount: 0,
                 imageUrl: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80',
                 status: 'ACTIVE',
                 type: 'Cabin',
@@ -564,9 +563,9 @@ export class SeedService implements OnModuleInit {
                 title: 'Dubai Desert Safari Adventure',
                 location: 'Dubai, UAE',
                 price: 89,
-                rating: 4.92,
+                rating: 0,
                 imageUrl: 'https://images.unsplash.com/photo-1451337516015-6b6e9a44a8a3?auto=format&fit=crop&w=800&q=80',
-                reviews: 234,
+                reviews: 0,
                 category: 'Adventure',
                 availableFrom: new Date('2026-03-01'),
                 availableTo: new Date('2026-12-31'),
@@ -725,7 +724,7 @@ export class SeedService implements OnModuleInit {
                 title: 'Private Chef for Dinner Party',
                 location: 'Los Angeles, United States',
                 price: 350,
-                rating: 4.97,
+                rating: 0,
                 imageUrl: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=800&q=80',
                 category: 'Chef',
                 duration: '4 hours',

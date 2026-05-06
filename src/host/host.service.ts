@@ -11,6 +11,7 @@ import { PropertyAvailability } from '../entities/property-availability.entity';
 import { PropertyRule } from '../entities/property-rule.entity';
 import { User } from '../entities/user.entity';
 import { Review } from '../entities/review.entity';
+import { Destination } from '../entities/destination.entity';
 import { 
   UpdateBasicsDto, 
   UpdateFloorPlanDto, 
@@ -45,6 +46,8 @@ export class HostService {
     private ruleRepository: Repository<PropertyRule>,
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
+    @InjectRepository(Destination)
+    private destinationRepository: Repository<Destination>,
   ) {}
 
   async getDashboard(userId: number) {
@@ -127,6 +130,8 @@ export class HostService {
 
     if (dto.priceOverride !== undefined) availability.priceOverride = dto.priceOverride;
     if (dto.isAvailable !== undefined) availability.isAvailable = dto.isAvailable;
+    if (dto.minNights !== undefined) availability.minNights = dto.minNights;
+    if (dto.cancellationPolicy !== undefined) availability.cancellationPolicy = dto.cancellationPolicy;
 
     return this.availabilityRepository.save(availability);
   }
@@ -171,8 +176,36 @@ export class HostService {
       property.category = category;
     }
     if (dto.type) property.type = dto.type;
-    if (dto.location) property.location = dto.location;
+    if (dto.status) property.status = dto.status;
+    if (dto.location) {
+      property.location = dto.location;
+      
+      // Auto-update destinations list
+      await this.syncDestination(dto.location);
+    }
     return this.propertyRepository.save(property);
+  }
+
+  private async syncDestination(location: string) {
+    if (!location || location.trim() === '') return;
+
+    // Extract city (assume first part of comma-separated address or just the whole thing)
+    const cityName = location.split(',')[0].trim();
+    if (!cityName) return;
+
+    const existing = await this.destinationRepository.findOne({ 
+      where: { name: cityName } 
+    });
+
+    if (!existing) {
+      await this.destinationRepository.save({
+        name: cityName,
+        region: 'World', // Default
+        type: 'city',
+        imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80', // Default placeholder
+      });
+      console.log(`[SYNC] New destination added: ${cityName}`);
+    }
   }
 
   async updateFloorPlan(id: number, userId: number, dto: UpdateFloorPlanDto): Promise<Property> {
@@ -199,6 +232,8 @@ export class HostService {
   async updatePolicies(id: number, userId: number, dto: UpdatePoliciesDto): Promise<Property> {
     const property = await this.findOneOwned(id, userId);
     if (dto.allowPets !== undefined) property.allowPets = dto.allowPets;
+    if (dto.cancellationPolicy !== undefined) property.cancellationPolicy = dto.cancellationPolicy;
+    if (dto.minNights !== undefined) property.minNights = dto.minNights;
     return this.propertyRepository.save(property);
   }
 

@@ -21,11 +21,15 @@ let User = class User {
     password;
     avatar;
     phone;
+    mailingAddress;
+    emergencyContact;
     isEmailVerified;
     emailVerificationToken;
     emailVerificationExpires;
     verificationSentAt;
     stripeCustomerId;
+    stripeAccountId;
+    isStripeConnected;
     role;
     hostStatus;
     hostSince;
@@ -33,6 +37,21 @@ let User = class User {
     hostLanguages;
     isIdentityVerified;
     isPhoneVerified;
+    location;
+    work;
+    school;
+    bornDecade;
+    dreamDestination;
+    funFact;
+    pets;
+    timeSpender;
+    favSong;
+    uselessSkill;
+    bioTitle;
+    obsessedWith;
+    interests;
+    travelStamps;
+    showStamps;
     isSuperhost;
     properties;
     experiences;
@@ -66,6 +85,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "phone", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "mailingAddress", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'text', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "emergencyContact", void 0);
+__decorate([
     (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isEmailVerified", void 0);
@@ -74,7 +101,7 @@ __decorate([
     __metadata("design:type", Object)
 ], User.prototype, "emailVerificationToken", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, type: 'datetime' }),
+    (0, typeorm_1.Column)({ nullable: true, type: 'timestamp' }),
     __metadata("design:type", Object)
 ], User.prototype, "emailVerificationExpires", void 0);
 __decorate([
@@ -86,6 +113,14 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "stripeCustomerId", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "stripeAccountId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isStripeConnected", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'varchar', default: 'GUEST' }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
@@ -94,7 +129,7 @@ __decorate([
     __metadata("design:type", Object)
 ], User.prototype, "hostStatus", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'datetime', nullable: true }),
+    (0, typeorm_1.Column)({ type: 'timestamp', nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "hostSince", void 0);
 __decorate([
@@ -113,6 +148,66 @@ __decorate([
     (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isPhoneVerified", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "location", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "work", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "school", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "bornDecade", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "dreamDestination", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "funFact", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "pets", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "timeSpender", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "favSong", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "uselessSkill", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "bioTitle", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "obsessedWith", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'simple-array', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "interests", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'simple-array', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "travelStamps", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "showStamps", void 0);
 __decorate([
     (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)

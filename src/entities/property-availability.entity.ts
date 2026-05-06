@@ -21,4 +21,10 @@ export class PropertyAvailability {
 
   @Column({ default: true })
   isAvailable: boolean;
+
+  @Column({ type: 'int', nullable: true })
+  minNights: number;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  cancellationPolicy: string;
 }

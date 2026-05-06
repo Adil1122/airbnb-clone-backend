@@ -40,6 +40,7 @@ export declare class Property {
     weeklyDiscount: number;
     bookingType: string;
     cancellationPolicy: string;
+    minNights: number;
     checkInMethod: string;
     checkInInstructions: string;
     wifiNetwork: string;

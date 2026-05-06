@@ -170,6 +170,50 @@ export class AuthService {
       isEmailVerified: user.isEmailVerified,
       isIdentityVerified: user.isIdentityVerified,
       isPhoneVerified: user.isPhoneVerified,
+      location: user.location,
+      work: user.work,
+      school: user.school,
+      bornDecade: user.bornDecade,
+      dreamDestination: user.dreamDestination,
+      funFact: user.funFact,
+      pets: user.pets,
+      timeSpender: user.timeSpender,
+      favSong: user.favSong,
+      uselessSkill: user.uselessSkill,
+      bioTitle: user.bioTitle,
+      obsessedWith: user.obsessedWith,
+      interests: user.interests,
+      travelStamps: user.travelStamps,
+      showStamps: user.showStamps,
+      hostBio: user.hostBio,
+      hostLanguages: user.hostLanguages,
     };
+  }
+
+  async updateProfile(userId: number, profileData: any): Promise<any> {
+    const user = await this.validateUser(userId);
+    
+    if (profileData.name) user.name = profileData.name;
+    if (profileData.avatar) user.avatar = profileData.avatar;
+    if (profileData.location !== undefined) user.location = profileData.location;
+    if (profileData.work !== undefined) user.work = profileData.work;
+    if (profileData.school !== undefined) user.school = profileData.school;
+    if (profileData.bornDecade !== undefined) user.bornDecade = profileData.bornDecade;
+    if (profileData.dreamDestination !== undefined) user.dreamDestination = profileData.dreamDestination;
+    if (profileData.funFact !== undefined) user.funFact = profileData.funFact;
+    if (profileData.pets !== undefined) user.pets = profileData.pets;
+    if (profileData.timeSpender !== undefined) user.timeSpender = profileData.timeSpender;
+    if (profileData.favSong !== undefined) user.favSong = profileData.favSong;
+    if (profileData.uselessSkill !== undefined) user.uselessSkill = profileData.uselessSkill;
+    if (profileData.bioTitle !== undefined) user.bioTitle = profileData.bioTitle;
+    if (profileData.obsessedWith !== undefined) user.obsessedWith = profileData.obsessedWith;
+    if (profileData.interests !== undefined) user.interests = profileData.interests;
+    if (profileData.travelStamps !== undefined) user.travelStamps = profileData.travelStamps;
+    if (profileData.showStamps !== undefined) user.showStamps = profileData.showStamps;
+    if (profileData.hostBio !== undefined) user.hostBio = profileData.hostBio;
+    if (profileData.hostLanguages !== undefined) user.hostLanguages = profileData.hostLanguages;
+
+    await this.usersRepository.save(user);
+    return this.getProfile(user.id);
   }
 }

@@ -1,8 +1,10 @@
 import { Repository } from 'typeorm';
 import { Destination } from '../entities/destination.entity';
+import { Property } from '../entities/property.entity';
 export declare class DestinationsService {
     private destinationsRepository;
-    constructor(destinationsRepository: Repository<Destination>);
+    private propertyRepository;
+    constructor(destinationsRepository: Repository<Destination>, propertyRepository: Repository<Property>);
     findAll(): Promise<Destination[]>;
     create(destination: Partial<Destination>): Promise<Destination>;
 }

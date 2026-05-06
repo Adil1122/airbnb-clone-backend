@@ -22,71 +22,28 @@ let PaymentController = class PaymentController {
         this.paymentService = paymentService;
     }
     async createPaymentIntent(body, req) {
-        try {
-            const result = await this.paymentService.createPaymentIntent(req.user.id, body.amount, 'usd', {
-                propertyId: body.propertyId,
-                checkIn: body.checkIn,
-                checkOut: body.checkOut,
-                guests: body.guests,
-            });
-            return { success: true, ...result };
-        }
-        catch (error) {
-            return {
-                success: false,
-                message: error.message || 'Failed to create payment intent',
-                error: error.raw?.message || error.toString()
-            };
-        }
+        return this.paymentService.createPaymentIntent(req.user.id, body.propertyId, body.hostId, body.amount, body.serviceFee, body.currency);
     }
-    async confirmBooking(body, req) {
-        const booking = await this.paymentService.confirmPayment(body.paymentIntentId, {
-            propertyId: body.propertyId,
-            userId: req.user.id,
-            checkIn: new Date(body.checkIn),
-            checkOut: new Date(body.checkOut),
-            guests: body.guests,
-            totalPrice: body.totalPrice,
-            serviceFee: body.serviceFee,
-            cleaningFee: body.cleaningFee,
-            propertyPrice: body.propertyPrice,
-            nights: body.nights,
-            messageToHost: body.messageToHost,
-        });
-        if (!booking) {
-            return { success: false, message: 'Payment not completed or booking failed' };
-        }
-        return { success: true, booking };
+    async capturePayment(body) {
+        return this.paymentService.capturePayment(body.bookingId);
     }
-    async getBooking(id, req) {
-        const booking = await this.paymentService.getBooking(parseInt(id));
-        if (!booking || booking.userId !== req.user.id) {
-            return { error: 'Booking not found' };
-        }
-        return booking;
-    }
-    async getBookings(req) {
-        return await this.paymentService.getBookingsByUser(req.user.id);
-    }
-    async cancelBooking(id, req) {
-        const booking = await this.paymentService.cancelBooking(parseInt(id), req.user.id);
-        if (!booking) {
-            return { success: false, message: 'Booking not found' };
-        }
-        return { success: true, booking };
-    }
-    async updateMessage(id, body, req) {
-        const booking = await this.paymentService.updateBookingMessage(parseInt(id), req.user.id, body.message);
-        if (!booking) {
-            return { success: false, message: 'Booking not found' };
-        }
-        return { success: true, booking };
+    async refundPayment(body) {
+        return this.paymentService.refundPayment(body.bookingId, body.amount);
     }
     async getPaymentMethods(req) {
         return await this.paymentService.listUserPaymentMethods(req.user.id);
     }
     async savePaymentMethod(body, req) {
         return await this.paymentService.savePaymentMethod(req.user.id, body.paymentMethodId);
+    }
+    async createHostStripeAccount(req) {
+        return await this.paymentService.createStripeAccount(req.user.id);
+    }
+    async createOnboardingLink(req) {
+        return await this.paymentService.createStripeAccountLink(req.user.id);
+    }
+    async handleWebhook(req, signature) {
+        return this.paymentService.handleWebhook(req.rawBody, signature);
     }
 };
 exports.PaymentController = PaymentController;
@@ -100,50 +57,21 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "createPaymentIntent", null);
 __decorate([
-    (0, common_1.Post)('confirm-booking'),
+    (0, common_1.Post)('capture'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Body)()),
-    __param(1, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
-    __metadata("design:returntype", Promise)
-], PaymentController.prototype, "confirmBooking", null);
-__decorate([
-    (0, common_1.Get)('booking/:id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", Promise)
-], PaymentController.prototype, "getBooking", null);
-__decorate([
-    (0, common_1.Get)('bookings'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], PaymentController.prototype, "getBookings", null);
+], PaymentController.prototype, "capturePayment", null);
 __decorate([
-    (0, common_1.Post)('cancel/:id'),
+    (0, common_1.Post)('refund'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Request)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], PaymentController.prototype, "cancelBooking", null);
-__decorate([
-    (0, common_1.Post)('update-message/:id'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __param(2, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
-    __metadata("design:returntype", Promise)
-], PaymentController.prototype, "updateMessage", null);
+], PaymentController.prototype, "refundPayment", null);
 __decorate([
     (0, common_1.Get)('methods'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
@@ -161,6 +89,30 @@ __decorate([
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], PaymentController.prototype, "savePaymentMethod", null);
+__decorate([
+    (0, common_1.Post)('host/create-account'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PaymentController.prototype, "createHostStripeAccount", null);
+__decorate([
+    (0, common_1.Post)('host/create-onboarding-link'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], PaymentController.prototype, "createOnboardingLink", null);
+__decorate([
+    (0, common_1.Post)('webhook'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Headers)('stripe-signature')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], PaymentController.prototype, "handleWebhook", null);
 exports.PaymentController = PaymentController = __decorate([
     (0, common_1.Controller)('payment'),
     __metadata("design:paramtypes", [payment_service_1.PaymentService])

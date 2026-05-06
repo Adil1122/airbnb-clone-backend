@@ -53,6 +53,7 @@ let Property = class Property {
     weeklyDiscount;
     bookingType;
     cancellationPolicy;
+    minNights;
     checkInMethod;
     checkInInstructions;
     wifiNetwork;
@@ -208,6 +209,10 @@ __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)
 ], Property.prototype, "cancellationPolicy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'int', default: 1 }),
+    __metadata("design:type", Number)
+], Property.prototype, "minNights", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'text', nullable: true }),
     __metadata("design:type", String)

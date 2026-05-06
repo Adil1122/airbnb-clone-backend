@@ -13,4 +13,7 @@ export declare class AuthController {
         message: string;
     }>;
     getProfile(req: any): Promise<any>;
+    updateProfile(req: any, profileData: any): Promise<any>;
+    uploadAvatar(req: any, file: Express.Multer.File): Promise<any>;
+    uploadIDCard(req: any, file: Express.Multer.File): Promise<any>;
 }

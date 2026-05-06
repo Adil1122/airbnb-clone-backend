@@ -50,7 +50,7 @@ __decorate([
     __metadata("design:type", Number)
 ], PropertyRule.prototype, "categoryId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255 }),
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
     __metadata("design:type", String)
 ], PropertyRule.prototype, "categoryName", void 0);
 __decorate([
@@ -58,7 +58,7 @@ __decorate([
     __metadata("design:type", String)
 ], PropertyRule.prototype, "categoryIcon", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ length: 255 }),
+    (0, typeorm_1.Column)({ length: 255, nullable: true }),
     __metadata("design:type", String)
 ], PropertyRule.prototype, "title", void 0);
 __decorate([
