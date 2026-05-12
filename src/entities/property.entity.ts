@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Category } from './category.entity';
 import { PropertyImage } from './property-image.entity';
@@ -156,5 +156,20 @@ export class Property {
 
     @OneToMany(() => Amenity, (amenity) => amenity.property)
     amenities: Amenity[];
+
+    @Column({ default: true })
+    isActive: boolean;
+
+    @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+    latitude: number | null;
+
+    @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
+    longitude: number | null;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
 }
 

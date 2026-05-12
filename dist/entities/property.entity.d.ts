@@ -54,4 +54,9 @@ export declare class Property {
     reviews: Review[];
     rules: PropertyRule[];
     amenities: Amenity[];
+    isActive: boolean;
+    latitude: number | null;
+    longitude: number | null;
+    createdAt: Date;
+    updatedAt: Date;
 }

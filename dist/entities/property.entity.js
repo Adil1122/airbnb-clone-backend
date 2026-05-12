@@ -67,6 +67,11 @@ let Property = class Property {
     reviews;
     rules;
     amenities;
+    isActive;
+    latitude;
+    longitude;
+    createdAt;
+    updatedAt;
 };
 exports.Property = Property;
 __decorate([
@@ -266,6 +271,26 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => amenity_entity_1.Amenity, (amenity) => amenity.property),
     __metadata("design:type", Array)
 ], Property.prototype, "amenities", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], Property.prototype, "isActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 7, nullable: true }),
+    __metadata("design:type", Object)
+], Property.prototype, "latitude", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 7, nullable: true }),
+    __metadata("design:type", Object)
+], Property.prototype, "longitude", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Property.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], Property.prototype, "updatedAt", void 0);
 exports.Property = Property = __decorate([
     (0, typeorm_1.Entity)('properties')
 ], Property);

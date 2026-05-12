@@ -1,4 +1,6 @@
-import { Controller, Post, Body, Get, Query, UseGuards, Request, HttpCode, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, UseGuards, Request, HttpCode, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, ResendVerificationDto } from './auth.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -88,7 +90,26 @@ export class AuthController {
     }),
   )
   async uploadIDCard(@Request() req, @UploadedFile() file: Express.Multer.File) {
-    // In a real app, you'd save the ID path and verify it. For now, we'll just verify the user.
     return this.authService.updateProfile(req.user.id, { isIdentityVerified: true });
+  }
+
+  // ── Google OAuth ──────────────────────────────────────────────────────────
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleLogin() {
+    // Passport redirects to Google — no body needed
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleCallback(@Request() req: any, @Res() res: Response) {
+    const { accessToken } = req.user;
+    res.json({ accessToken, user: req.user });
+  }
+
+  @Post('google/token')
+  async googleTokenLogin(@Body() body: { idToken: string }) {
+    return this.authService.loginWithGoogleIdToken(body.idToken);
   }
 }

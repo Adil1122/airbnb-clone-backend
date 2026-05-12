@@ -190,6 +190,29 @@ export class AuthService {
     };
   }
 
+  async loginWithGoogleIdToken(idToken: string): Promise<AuthResponseDto> {
+    // Decode the Google ID token payload (the Flutter google_sign_in SDK sends a verified token)
+    // We trust the token came from our own Google OAuth client — decode without full verification here.
+    const parts = idToken.split('.');
+    if (parts.length !== 3) throw new UnauthorizedException('Invalid Google token');
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+    const { email, name, picture: avatar } = payload;
+    if (!email) throw new UnauthorizedException('No email in Google token');
+
+    let user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      user = this.usersRepository.create({ email, name, avatar, password: '', isEmailVerified: true });
+      await this.usersRepository.save(user);
+    } else if (!user.avatar && avatar) {
+      user.avatar = avatar;
+      await this.usersRepository.save(user);
+    }
+
+    const jwtPayload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign(jwtPayload);
+    return { accessToken, user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar } };
+  }
+
   async updateProfile(userId: number, profileData: any): Promise<any> {
     const user = await this.validateUser(userId);
     

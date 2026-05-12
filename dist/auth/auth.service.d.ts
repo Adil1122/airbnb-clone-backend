@@ -19,5 +19,6 @@ export declare class AuthService {
     login(loginDto: LoginDto): Promise<AuthResponseDto>;
     validateUser(userId: number): Promise<User>;
     getProfile(userId: number): Promise<any>;
+    loginWithGoogleIdToken(idToken: string): Promise<AuthResponseDto>;
     updateProfile(userId: number, profileData: any): Promise<any>;
 }

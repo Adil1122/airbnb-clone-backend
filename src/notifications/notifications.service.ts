@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification, NotificationChannel } from '../entities/notification.entity';
 import { NotificationPreference } from '../entities/notification-preference.entity';
+import { DeviceToken } from '../entities/device-token.entity';
+import { FirebaseService } from '../firebase/firebase.service';
 import { UpdateNotificationPreferencesDto } from './notifications.dto';
 
 @Injectable()
@@ -12,7 +14,25 @@ export class NotificationsService {
     private notificationRepo: Repository<Notification>,
     @InjectRepository(NotificationPreference)
     private prefRepo: Repository<NotificationPreference>,
+    @InjectRepository(DeviceToken)
+    private deviceTokenRepo: Repository<DeviceToken>,
+    private firebaseService: FirebaseService,
   ) {}
+
+  async registerDeviceToken(userId: number, token: string, platform?: string): Promise<void> {
+    const existing = await this.deviceTokenRepo.findOne({ where: { token } });
+    if (existing) {
+      existing.userId = userId;
+      existing.platform = platform ?? null;
+      await this.deviceTokenRepo.save(existing);
+    } else {
+      await this.deviceTokenRepo.save(this.deviceTokenRepo.create({ userId, token, platform }));
+    }
+  }
+
+  async removeDeviceToken(token: string): Promise<void> {
+    await this.deviceTokenRepo.delete({ token });
+  }
 
   async getNotifications(userId: number): Promise<Notification[]> {
     return this.notificationRepo.find({
@@ -46,9 +66,7 @@ export class NotificationsService {
 
   async updatePreferences(userId: number, dto: UpdateNotificationPreferencesDto): Promise<NotificationPreference> {
     let pref = await this.prefRepo.findOne({ where: { userId } });
-    if (!pref) {
-      pref = this.prefRepo.create({ userId });
-    }
+    if (!pref) pref = this.prefRepo.create({ userId });
     Object.assign(pref, dto);
     return this.prefRepo.save(pref);
   }
@@ -62,14 +80,20 @@ export class NotificationsService {
     channel: NotificationChannel = NotificationChannel.IN_APP,
   ): Promise<Notification> {
     const notification = this.notificationRepo.create({
-      userId,
-      type,
-      title,
-      body,
-      data,
-      channel,
-      sentAt: new Date(),
+      userId, type, title, body, data, channel, sentAt: new Date(),
     });
-    return this.notificationRepo.save(notification);
+    const saved = await this.notificationRepo.save(notification);
+
+    // Send FCM push to all registered device tokens for this user
+    const tokens = await this.deviceTokenRepo.find({ where: { userId } });
+    if (tokens.length) {
+      const fcmTokens = tokens.map(t => t.token);
+      const stringData = data
+        ? Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)]))
+        : undefined;
+      await this.firebaseService.sendMulticast(fcmTokens, title, body, stringData);
+    }
+
+    return saved;
   }
 }

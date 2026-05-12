@@ -6,6 +6,12 @@ const path_1 = require("path");
 const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.use((req, res, next) => {
+        if (req.headers['access-control-request-private-network']) {
+            res.setHeader('Access-Control-Allow-Private-Network', 'true');
+        }
+        next();
+    });
     app.enableCors();
     app.useStaticAssets((0, path_1.join)(__dirname, '..', 'uploads'), {
         prefix: '/uploads/',

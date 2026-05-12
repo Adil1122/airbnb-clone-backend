@@ -1,6 +1,9 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -21,6 +24,19 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { MessagesModule } from './messages/messages.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { BookingsModule } from './bookings/bookings.module';
+
+// New modules
+import { EmailModule } from './email/email.module';
+import { FirebaseModule } from './firebase/firebase.module';
+import { UploadModule } from './upload/upload.module';
+import { GatewayModule } from './gateway/gateway.module';
+import { CoHostsModule } from './co-hosts/co-hosts.module';
+import { RecentlyViewedModule } from './recently-viewed/recently-viewed.module';
+import { ConnectionsModule } from './connections/connections.module';
+import { SuperhostModule } from './superhost/superhost.module';
+import { SmartPricingModule } from './smart-pricing/smart-pricing.module';
+import { IcalModule } from './ical/ical.module';
+import { AdminModule } from './admin/admin.module';
 
 // Seed
 import { SeedService } from './seed.service';
@@ -52,10 +68,19 @@ import { NotificationPreference } from './entities/notification-preference.entit
 import { Promotion } from './entities/promotion.entity';
 import { PromotionRedemption } from './entities/promotion-redemption.entity';
 import { StripeWebhookEvent } from './entities/stripe-webhook-event.entity';
+import { CoHost } from './entities/co-host.entity';
+import { RecentlyViewed } from './entities/recently-viewed.entity';
+import { Connection } from './entities/connection.entity';
+import { DeviceToken } from './entities/device-token.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,  // 1 minute window
+      limit: 100,  // 100 requests per minute per IP
+    }]),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -76,9 +101,23 @@ import { StripeWebhookEvent } from './entities/stripe-webhook-event.entity';
         Notification, NotificationPreference,
         Promotion, PromotionRedemption,
         StripeWebhookEvent,
+        CoHost, RecentlyViewed, Connection, DeviceToken,
       ],
+      // Supabase transaction pooler keepalive & retry settings
+      retryAttempts: 5,
+      retryDelay: 3000,
+      extra: {
+        max: 5,
+        idleTimeoutMillis: 10000,
+        connectionTimeoutMillis: 10000,
+        keepAlive: true,
+      },
     }),
     TypeOrmModule.forFeature([User, Booking, Property, UserSettings]),
+
+    // Global utility modules
+    EmailModule,
+    FirebaseModule,
 
     // Original modules
     CategoriesModule,
@@ -93,15 +132,30 @@ import { StripeWebhookEvent } from './entities/stripe-webhook-event.entity';
     SupabaseModule,
     UserSettingsModule,
 
-    // New modules
+    // Phase 1 modules
     WishlistsModule,
     ReviewsModule,
     MessagesModule,
     NotificationsModule,
     BookingsModule,
+
+    // New production modules
+    UploadModule,
+    GatewayModule,
+    CoHostsModule,
+    RecentlyViewedModule,
+    ConnectionsModule,
+    SuperhostModule,
+    SmartPricingModule,
+    IcalModule,
+    AdminModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SeedService],
+  providers: [
+    AppService,
+    SeedService,
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule implements OnModuleInit {
   constructor(private readonly seedService: SeedService) {}

@@ -13,6 +13,9 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const config_1 = require("@nestjs/config");
+const throttler_1 = require("@nestjs/throttler");
+const schedule_1 = require("@nestjs/schedule");
+const core_1 = require("@nestjs/core");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const categories_module_1 = require("./categories/categories.module");
@@ -31,6 +34,17 @@ const reviews_module_1 = require("./reviews/reviews.module");
 const messages_module_1 = require("./messages/messages.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const bookings_module_1 = require("./bookings/bookings.module");
+const email_module_1 = require("./email/email.module");
+const firebase_module_1 = require("./firebase/firebase.module");
+const upload_module_1 = require("./upload/upload.module");
+const gateway_module_1 = require("./gateway/gateway.module");
+const co_hosts_module_1 = require("./co-hosts/co-hosts.module");
+const recently_viewed_module_1 = require("./recently-viewed/recently-viewed.module");
+const connections_module_1 = require("./connections/connections.module");
+const superhost_module_1 = require("./superhost/superhost.module");
+const smart_pricing_module_1 = require("./smart-pricing/smart-pricing.module");
+const ical_module_1 = require("./ical/ical.module");
+const admin_module_1 = require("./admin/admin.module");
 const seed_service_1 = require("./seed.service");
 const user_entity_1 = require("./entities/user.entity");
 const booking_entity_1 = require("./entities/booking.entity");
@@ -58,6 +72,10 @@ const notification_preference_entity_1 = require("./entities/notification-prefer
 const promotion_entity_1 = require("./entities/promotion.entity");
 const promotion_redemption_entity_1 = require("./entities/promotion-redemption.entity");
 const stripe_webhook_event_entity_1 = require("./entities/stripe-webhook-event.entity");
+const co_host_entity_1 = require("./entities/co-host.entity");
+const recently_viewed_entity_1 = require("./entities/recently-viewed.entity");
+const connection_entity_1 = require("./entities/connection.entity");
+const device_token_entity_1 = require("./entities/device-token.entity");
 let AppModule = class AppModule {
     seedService;
     constructor(seedService) {
@@ -72,6 +90,11 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            schedule_1.ScheduleModule.forRoot(),
+            throttler_1.ThrottlerModule.forRoot([{
+                    ttl: 60000,
+                    limit: 100,
+                }]),
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'postgres',
                 host: process.env.DB_HOST,
@@ -92,9 +115,20 @@ exports.AppModule = AppModule = __decorate([
                     notification_entity_1.Notification, notification_preference_entity_1.NotificationPreference,
                     promotion_entity_1.Promotion, promotion_redemption_entity_1.PromotionRedemption,
                     stripe_webhook_event_entity_1.StripeWebhookEvent,
+                    co_host_entity_1.CoHost, recently_viewed_entity_1.RecentlyViewed, connection_entity_1.Connection, device_token_entity_1.DeviceToken,
                 ],
+                retryAttempts: 5,
+                retryDelay: 3000,
+                extra: {
+                    max: 5,
+                    idleTimeoutMillis: 10000,
+                    connectionTimeoutMillis: 10000,
+                    keepAlive: true,
+                },
             }),
             typeorm_1.TypeOrmModule.forFeature([user_entity_1.User, booking_entity_1.Booking, property_entity_1.Property, user_settings_entity_1.UserSettings]),
+            email_module_1.EmailModule,
+            firebase_module_1.FirebaseModule,
             categories_module_1.CategoriesModule,
             properties_module_1.PropertiesModule,
             experiences_module_1.ExperiencesModule,
@@ -111,9 +145,22 @@ exports.AppModule = AppModule = __decorate([
             messages_module_1.MessagesModule,
             notifications_module_1.NotificationsModule,
             bookings_module_1.BookingsModule,
+            upload_module_1.UploadModule,
+            gateway_module_1.GatewayModule,
+            co_hosts_module_1.CoHostsModule,
+            recently_viewed_module_1.RecentlyViewedModule,
+            connections_module_1.ConnectionsModule,
+            superhost_module_1.SuperhostModule,
+            smart_pricing_module_1.SmartPricingModule,
+            ical_module_1.IcalModule,
+            admin_module_1.AdminModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, seed_service_1.SeedService],
+        providers: [
+            app_service_1.AppService,
+            seed_service_1.SeedService,
+            { provide: core_1.APP_GUARD, useClass: throttler_1.ThrottlerGuard },
+        ],
     }),
     __metadata("design:paramtypes", [seed_service_1.SeedService])
 ], AppModule);

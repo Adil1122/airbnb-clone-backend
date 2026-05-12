@@ -207,6 +207,27 @@ let AuthService = class AuthService {
             hostLanguages: user.hostLanguages,
         };
     }
+    async loginWithGoogleIdToken(idToken) {
+        const parts = idToken.split('.');
+        if (parts.length !== 3)
+            throw new common_1.UnauthorizedException('Invalid Google token');
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+        const { email, name, picture: avatar } = payload;
+        if (!email)
+            throw new common_1.UnauthorizedException('No email in Google token');
+        let user = await this.usersRepository.findOne({ where: { email } });
+        if (!user) {
+            user = this.usersRepository.create({ email, name, avatar, password: '', isEmailVerified: true });
+            await this.usersRepository.save(user);
+        }
+        else if (!user.avatar && avatar) {
+            user.avatar = avatar;
+            await this.usersRepository.save(user);
+        }
+        const jwtPayload = { sub: user.id, email: user.email };
+        const accessToken = this.jwtService.sign(jwtPayload);
+        return { accessToken, user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar } };
+    }
     async updateProfile(userId, profileData) {
         const user = await this.validateUser(userId);
         if (profileData.name)
